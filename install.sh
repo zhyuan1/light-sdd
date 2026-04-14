@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # light-sdd installer
-# Copies SDD skills and templates into the Claude Code skill directory.
+# Copies SDD skills, commands, and templates into the target directory.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_SRC="$SCRIPT_DIR/skills"
@@ -10,28 +10,30 @@ TEMPLATES_SRC="$SCRIPT_DIR/templates"
 COMMANDS_SRC="$SCRIPT_DIR/commands"
 SCHEMA_SRC="$SCRIPT_DIR/schema.yaml"
 
-# Default install targets
-CLAUDE_SKILLS_DIR="${SDD_INSTALL_DIR:-$HOME/.claude/skills}"
-CLAUDE_COMMANDS_DIR="$HOME/.claude/commands"
+# Default install root: ~/.claude
+# Skills -> <root>/skills/, Commands -> <root>/commands/
+INSTALL_ROOT="${SDD_INSTALL_ROOT:-$HOME/.claude}"
 
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Install light-sdd skills and templates for Claude Code.
+Install light-sdd skills, commands, and templates for Claude Code.
 
 Options:
-  --target DIR    Install skills to DIR instead of ~/.claude/skills/
-  --project       Install into the current project (.claude/skills/) instead of user-level
+  --target DIR    Install to DIR (skills/ and commands/ created inside)
+  --project       Install into the current project (.claude/) instead of user-level
   --check         Verify installation integrity without installing
-  --uninstall     Remove SDD skills and templates
+  --uninstall     Remove SDD skills, commands, and templates
   -h, --help      Show this help
 
 Examples:
-  ./install.sh                  # Install to ~/.claude/skills/
-  ./install.sh --project        # Install to ./.claude/skills/
-  ./install.sh --check          # Verify existing installation
-  ./install.sh --uninstall      # Remove SDD skills
+  ./install.sh                          # Install to ~/.claude/
+  ./install.sh --target .claude-internal  # Install to .claude-internal/
+  ./install.sh --project                # Install to ./.claude/
+  ./install.sh --check                  # Verify existing installation
+  ./install.sh --uninstall              # Remove SDD from default location
+  ./install.sh --uninstall --target .claude-internal  # Remove from custom location
 EOF
 }
 
@@ -72,21 +74,25 @@ SDD_COMMANDS=(
 )
 
 do_install() {
-  local target="$1"
+  local root="$1"
+  local skills_dir="$root/skills"
+  local commands_dir="$root/commands"
 
-  echo "Installing light-sdd to: $target"
+  echo "Installing light-sdd to: $root"
+  echo "  skills  -> $skills_dir"
+  echo "  commands -> $commands_dir"
   echo ""
 
   # Install skills
   for skill in "${SDD_SKILLS[@]}"; do
-    local dest="$target/$skill"
+    local dest="$skills_dir/$skill"
     mkdir -p "$dest"
     cp "$SKILLS_SRC/$skill/SKILL.md" "$dest/SKILL.md"
     echo "  skill: $skill"
   done
 
   # Install templates into a shared sdd-templates directory
-  local tmpl_dest="$target/sdd-templates"
+  local tmpl_dest="$skills_dir/sdd-templates"
   mkdir -p "$tmpl_dest"
   for tmpl in "${SDD_TEMPLATES[@]}"; do
     cp "$TEMPLATES_SRC/$tmpl" "$tmpl_dest/$tmpl"
@@ -98,14 +104,9 @@ do_install() {
   echo "  schema: schema.yaml"
 
   # Install commands
-  local cmd_dest="$CLAUDE_COMMANDS_DIR"
-  if [ "$target" != "$HOME/.claude/skills" ]; then
-    # Project-level install: put commands next to skills
-    cmd_dest="$(dirname "$target")/commands"
-  fi
-  mkdir -p "$cmd_dest"
+  mkdir -p "$commands_dir"
   for cmd in "${SDD_COMMANDS[@]}"; do
-    cp "$COMMANDS_SRC/$cmd" "$cmd_dest/$cmd"
+    cp "$COMMANDS_SRC/$cmd" "$commands_dir/$cmd"
     echo "  command: $cmd"
   done
 
@@ -126,28 +127,30 @@ do_install() {
 }
 
 do_check() {
-  local target="$1"
+  local root="$1"
+  local skills_dir="$root/skills"
+  local commands_dir="$root/commands"
   local errors=0
 
-  echo "Checking light-sdd installation at: $target"
+  echo "Checking light-sdd installation at: $root"
   echo ""
 
   for skill in "${SDD_SKILLS[@]}"; do
-    if [ -f "$target/$skill/SKILL.md" ]; then
+    if [ -f "$skills_dir/$skill/SKILL.md" ]; then
       echo "  [ok] $skill"
     else
       echo "  [MISSING] $skill"
-      ((errors++))
+      errors=$((errors + 1))
     fi
   done
 
-  local tmpl_dest="$target/sdd-templates"
+  local tmpl_dest="$skills_dir/sdd-templates"
   for tmpl in "${SDD_TEMPLATES[@]}"; do
     if [ -f "$tmpl_dest/$tmpl" ]; then
       echo "  [ok] template: $tmpl"
     else
       echo "  [MISSING] template: $tmpl"
-      ((errors++))
+      errors=$((errors + 1))
     fi
   done
 
@@ -155,20 +158,15 @@ do_check() {
     echo "  [ok] schema.yaml"
   else
     echo "  [MISSING] schema.yaml"
-    ((errors++))
+    errors=$((errors + 1))
   fi
 
-  # Check commands
-  local cmd_dest="$CLAUDE_COMMANDS_DIR"
-  if [ "$target" != "$HOME/.claude/skills" ]; then
-    cmd_dest="$(dirname "$target")/commands"
-  fi
   for cmd in "${SDD_COMMANDS[@]}"; do
-    if [ -f "$cmd_dest/$cmd" ]; then
+    if [ -f "$commands_dir/$cmd" ]; then
       echo "  [ok] command: $cmd"
     else
       echo "  [MISSING] command: $cmd"
-      ((errors++))
+      errors=$((errors + 1))
     fi
   done
 
@@ -182,31 +180,28 @@ do_check() {
 }
 
 do_uninstall() {
-  local target="$1"
+  local root="$1"
+  local skills_dir="$root/skills"
+  local commands_dir="$root/commands"
 
-  echo "Uninstalling light-sdd from: $target"
+  echo "Uninstalling light-sdd from: $root"
   echo ""
 
   for skill in "${SDD_SKILLS[@]}"; do
-    if [ -d "$target/$skill" ]; then
-      rm -rf "$target/$skill"
+    if [ -d "$skills_dir/$skill" ]; then
+      rm -rf "$skills_dir/$skill"
       echo "  removed: $skill"
     fi
   done
 
-  if [ -d "$target/sdd-templates" ]; then
-    rm -rf "$target/sdd-templates"
+  if [ -d "$skills_dir/sdd-templates" ]; then
+    rm -rf "$skills_dir/sdd-templates"
     echo "  removed: sdd-templates"
   fi
 
-  # Remove commands
-  local cmd_dest="$CLAUDE_COMMANDS_DIR"
-  if [ "$target" != "$HOME/.claude/skills" ]; then
-    cmd_dest="$(dirname "$target")/commands"
-  fi
   for cmd in "${SDD_COMMANDS[@]}"; do
-    if [ -f "$cmd_dest/$cmd" ]; then
-      rm -f "$cmd_dest/$cmd"
+    if [ -f "$commands_dir/$cmd" ]; then
+      rm -f "$commands_dir/$cmd"
       echo "  removed: command $cmd"
     fi
   done
@@ -220,11 +215,11 @@ ACTION="install"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --target)
-      CLAUDE_SKILLS_DIR="$2"
+      INSTALL_ROOT="$2"
       shift 2
       ;;
     --project)
-      CLAUDE_SKILLS_DIR=".claude/skills"
+      INSTALL_ROOT=".claude"
       shift
       ;;
     --check)
@@ -249,12 +244,12 @@ done
 
 case "$ACTION" in
   install)
-    do_install "$CLAUDE_SKILLS_DIR"
+    do_install "$INSTALL_ROOT"
     ;;
   check)
-    do_check "$CLAUDE_SKILLS_DIR"
+    do_check "$INSTALL_ROOT"
     ;;
   uninstall)
-    do_uninstall "$CLAUDE_SKILLS_DIR"
+    do_uninstall "$INSTALL_ROOT"
     ;;
 esac

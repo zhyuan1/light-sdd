@@ -365,13 +365,19 @@ t2_10() {
   local target="$TMPDIR/sdd-install-test"
   local ok=true
 
-  # Install
+  # Install (--target is now the root dir, skills/ and commands/ created inside)
   "$install" --target "$target" > /dev/null 2>&1
   # Check
   local check_output
   check_output=$("$install" --check --target "$target" 2>&1)
   if echo "$check_output" | grep -q "MISSING"; then
     fail "$label (install)" "some items missing after install: $(echo "$check_output" | grep MISSING)"
+    ok=false
+  fi
+
+  # Verify directory structure: skills/ and commands/ should exist
+  if [ ! -d "$target/skills" ] || [ ! -d "$target/commands" ]; then
+    fail "$label (structure)" "expected skills/ and commands/ dirs inside target"
     ok=false
   fi
 

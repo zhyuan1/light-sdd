@@ -260,6 +260,12 @@ t1_8() {
     ok=false
   fi
 
+  # Check --help mentions --target
+  if ! echo "$help_output" | grep -q "\-\-target"; then
+    fail "$label -- install.sh --help does not mention '--target'"
+    ok=false
+  fi
+
   if $ok; then pass "$label"; fi
 }
 
