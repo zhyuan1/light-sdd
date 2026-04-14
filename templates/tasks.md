@@ -22,3 +22,9 @@
 <!-- Batch 1 must complete before Batch 2, etc. -->
 
 Batch 1 -> Batch 2 -> ... -> Verification
+
+## Verification Task
+
+<!-- Final task(s) for running verification against specs. -->
+
+- [ ] Run verification against all specs | size: S

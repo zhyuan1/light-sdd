@@ -1,8 +1,14 @@
 # Review: {type}
 
+## Review Type
+
+<!-- spec-review | code-review | verification -->
+
+## Verdict
+
+<!-- pass | pass-with-notes | fail -->
+
 **Date**: {timestamp}
-**Type**: spec-review | code-review | verification
-**Verdict**: pass | pass-with-notes | fail
 
 ## Scope
 
