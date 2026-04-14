@@ -10,6 +10,9 @@ TEMPLATES_SRC="$SCRIPT_DIR/templates"
 COMMANDS_SRC="$SCRIPT_DIR/commands"
 SCHEMA_SRC="$SCRIPT_DIR/schema.yaml"
 
+SDD_REPO="https://github.com/zhyuan1/light-sdd.git"
+SDD_LOCAL_VERSION=$(grep '^version:' "$SCHEMA_SRC" 2>/dev/null | awk '{print $2}' | tr -d '"' || echo "unknown")
+
 # Default install root: ~/.claude
 # Skills -> <root>/skills/, Commands -> <root>/commands/
 INSTALL_ROOT="${SDD_INSTALL_ROOT:-$HOME/.claude}"
@@ -24,16 +27,18 @@ Options:
   --target DIR    Install to DIR (skills/ and commands/ created inside)
   --project       Install into the current project (.claude/) instead of user-level
   --check         Verify installation integrity without installing
+  --update        Pull latest from GitHub and reinstall
   --uninstall     Remove SDD skills, commands, and templates
   -h, --help      Show this help
 
 Examples:
-  ./install.sh                          # Install to ~/.claude/
+  ./install.sh                            # Install to ~/.claude/
   ./install.sh --target .claude-internal  # Install to .claude-internal/
-  ./install.sh --project                # Install to ./.claude/
-  ./install.sh --check                  # Verify existing installation
-  ./install.sh --uninstall              # Remove SDD from default location
-  ./install.sh --uninstall --target .claude-internal  # Remove from custom location
+  ./install.sh --project                  # Install to ./.claude/
+  ./install.sh --check                    # Verify existing installation
+  ./install.sh --update                   # Pull latest + reinstall
+  ./install.sh --update --target .claude-internal  # Update custom location
+  ./install.sh --uninstall               # Remove SDD from default location
 EOF
 }
 
@@ -210,6 +215,86 @@ do_uninstall() {
   echo "Done."
 }
 
+do_update() {
+  local root="$1"
+
+  echo "light-sdd updater"
+  echo "  Local version:  $SDD_LOCAL_VERSION"
+  echo "  Source repo:    $SDD_REPO"
+  echo ""
+
+  # Step 1: Check if we are inside the light-sdd repo
+  local in_repo=false
+  if git -C "$SCRIPT_DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local remote_url
+    remote_url=$(git -C "$SCRIPT_DIR" remote get-url origin 2>/dev/null || echo "")
+    if [[ "$remote_url" == *"light-sdd"* ]]; then
+      in_repo=true
+    fi
+  fi
+
+  if $in_repo; then
+    # We are inside the cloned repo -- just pull
+    echo "Pulling latest from origin..."
+    local before_sha after_sha
+    before_sha=$(git -C "$SCRIPT_DIR" rev-parse HEAD)
+    git -C "$SCRIPT_DIR" pull --ff-only 2>&1 | sed 's/^/  /'
+    after_sha=$(git -C "$SCRIPT_DIR" rev-parse HEAD)
+
+    if [ "$before_sha" = "$after_sha" ]; then
+      echo ""
+      echo "Already up to date ($SDD_LOCAL_VERSION)."
+
+      # Still reinstall in case the install target is stale
+      echo "Reinstalling to ensure target is in sync..."
+      echo ""
+      do_install "$root"
+      return
+    fi
+
+    # Re-read version after pull
+    local new_version
+    new_version=$(grep '^version:' "$SCHEMA_SRC" 2>/dev/null | awk '{print $2}' | tr -d '"' || echo "unknown")
+    echo ""
+    echo "Updated: $SDD_LOCAL_VERSION -> $new_version"
+    echo ""
+
+    # Show what changed
+    echo "Changes:"
+    git -C "$SCRIPT_DIR" log --oneline "${before_sha}..${after_sha}" | sed 's/^/  /'
+    echo ""
+
+    # Reinstall
+    do_install "$root"
+  else
+    # We are running from an installed copy or arbitrary location
+    # Clone/pull to a temp dir, then reinstall from there
+    local tmpdir
+    tmpdir=$(mktemp -d /tmp/light-sdd-update-XXXX)
+    trap "rm -rf '$tmpdir'" EXIT
+
+    echo "Cloning latest from $SDD_REPO..."
+    git clone --depth 1 "$SDD_REPO" "$tmpdir" 2>&1 | sed 's/^/  /'
+
+    local new_version
+    new_version=$(grep '^version:' "$tmpdir/schema.yaml" 2>/dev/null | awk '{print $2}' | tr -d '"' || echo "unknown")
+    echo ""
+    echo "Remote version: $new_version"
+
+    if [ "$SDD_LOCAL_VERSION" = "$new_version" ]; then
+      echo "Already up to date."
+      echo ""
+      echo "Reinstalling to ensure target is in sync..."
+    else
+      echo "Updating: $SDD_LOCAL_VERSION -> $new_version"
+    fi
+    echo ""
+
+    # Run install from the fresh clone
+    bash "$tmpdir/install.sh" --target "$root"
+  fi
+}
+
 # Parse arguments
 ACTION="install"
 while [[ $# -gt 0 ]]; do
@@ -224,6 +309,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --check)
       ACTION="check"
+      shift
+      ;;
+    --update)
+      ACTION="update"
       shift
       ;;
     --uninstall)
@@ -248,6 +337,9 @@ case "$ACTION" in
     ;;
   check)
     do_check "$INSTALL_ROOT"
+    ;;
+  update)
+    do_update "$INSTALL_ROOT"
     ;;
   uninstall)
     do_uninstall "$INSTALL_ROOT"
