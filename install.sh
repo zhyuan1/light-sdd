@@ -7,10 +7,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLS_SRC="$SCRIPT_DIR/skills"
 TEMPLATES_SRC="$SCRIPT_DIR/templates"
+COMMANDS_SRC="$SCRIPT_DIR/commands"
 SCHEMA_SRC="$SCRIPT_DIR/schema.yaml"
 
-# Default install target: user-level Claude skills
+# Default install targets
 CLAUDE_SKILLS_DIR="${SDD_INSTALL_DIR:-$HOME/.claude/skills}"
+CLAUDE_COMMANDS_DIR="$HOME/.claude/commands"
 
 usage() {
   cat <<EOF
@@ -56,6 +58,19 @@ SDD_TEMPLATES=(
   review.md
 )
 
+SDD_COMMANDS=(
+  sdd-status.md
+  sdd-brainstorm.md
+  sdd-propose.md
+  sdd-ff.md
+  sdd-plan.md
+  sdd-code.md
+  sdd-review-spec.md
+  sdd-review-code.md
+  sdd-verify.md
+  sdd-ship.md
+)
+
 do_install() {
   local target="$1"
 
@@ -82,8 +97,20 @@ do_install() {
   cp "$SCHEMA_SRC" "$tmpl_dest/schema.yaml"
   echo "  schema: schema.yaml"
 
+  # Install commands
+  local cmd_dest="$CLAUDE_COMMANDS_DIR"
+  if [ "$target" != "$HOME/.claude/skills" ]; then
+    # Project-level install: put commands next to skills
+    cmd_dest="$(dirname "$target")/commands"
+  fi
+  mkdir -p "$cmd_dest"
+  for cmd in "${SDD_COMMANDS[@]}"; do
+    cp "$COMMANDS_SRC/$cmd" "$cmd_dest/$cmd"
+    echo "  command: $cmd"
+  done
+
   echo ""
-  echo "Done. Installed ${#SDD_SKILLS[@]} skills, ${#SDD_TEMPLATES[@]} templates, 1 schema."
+  echo "Done. Installed ${#SDD_SKILLS[@]} skills, ${#SDD_COMMANDS[@]} commands, ${#SDD_TEMPLATES[@]} templates, 1 schema."
   echo ""
   echo "Available commands:"
   echo "  /sdd-status       -- Check progress of a change"
@@ -131,6 +158,20 @@ do_check() {
     ((errors++))
   fi
 
+  # Check commands
+  local cmd_dest="$CLAUDE_COMMANDS_DIR"
+  if [ "$target" != "$HOME/.claude/skills" ]; then
+    cmd_dest="$(dirname "$target")/commands"
+  fi
+  for cmd in "${SDD_COMMANDS[@]}"; do
+    if [ -f "$cmd_dest/$cmd" ]; then
+      echo "  [ok] command: $cmd"
+    else
+      echo "  [MISSING] command: $cmd"
+      ((errors++))
+    fi
+  done
+
   echo ""
   if [ "$errors" -eq 0 ]; then
     echo "All checks passed."
@@ -157,6 +198,18 @@ do_uninstall() {
     rm -rf "$target/sdd-templates"
     echo "  removed: sdd-templates"
   fi
+
+  # Remove commands
+  local cmd_dest="$CLAUDE_COMMANDS_DIR"
+  if [ "$target" != "$HOME/.claude/skills" ]; then
+    cmd_dest="$(dirname "$target")/commands"
+  fi
+  for cmd in "${SDD_COMMANDS[@]}"; do
+    if [ -f "$cmd_dest/$cmd" ]; then
+      rm -f "$cmd_dest/$cmd"
+      echo "  removed: command $cmd"
+    fi
+  done
 
   echo ""
   echo "Done."
