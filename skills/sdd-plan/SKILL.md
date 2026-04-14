@@ -56,7 +56,18 @@ Expect from the delegate:
   - Task Detail for every task in the batch.
   - Each task detail includes approach, files, tests, and complexity.
 
-### Override
+### Transition suppression
+
+Superpowers `writing-plans` has built-in auto-transition logic: after the plan is complete, it presents an execution handoff prompting the user to choose between `subagent-driven-development` and `executing-plans`. **SDD must suppress this behavior.**
+
+When invoking `writing-plans`, append this constraint to the delegation context:
+
+> **SDD OVERRIDE**: Do NOT invoke `subagent-driven-development`, `executing-plans`, or any other skill after plan generation. Do NOT present an execution handoff prompt. Your scope is limited to producing `plan.md`. Return control to SDD when the plan document is finalized. SDD controls the workflow -- the next step is `/sdd-code`, not an execution skill.
+
+If the delegate presents an execution choice anyway, intercept and stop. Inform the user:
+> Plan complete. The delegate tried to auto-advance to execution -- SDD intercepted this. Run `/sdd-code` to continue the SDD workflow.
+
+### Skill override
 
 | Alternative | When to prefer |
 |---|---|

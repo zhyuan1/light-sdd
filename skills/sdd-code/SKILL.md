@@ -60,7 +60,23 @@ If tests fail unexpectedly or implementation encounters errors:
 - Invoke `systematic-debugging` to find root cause before attempting fixes.
 - Do not apply symptom fixes -- always trace to root cause.
 
-### Override
+### Transition suppression
+
+Superpowers `executing-plans` has two built-in auto-transitions that conflict with SDD:
+
+1. **Pre-transition**: it automatically invokes `using-git-worktrees` to create an isolated workspace before starting.
+2. **Post-transition**: after all tasks complete, it automatically invokes `finishing-a-development-branch` to merge/PR/discard.
+
+**SDD must suppress both behaviors.**
+
+When invoking `executing-plans`, append this constraint to the delegation context:
+
+> **SDD OVERRIDE**: Do NOT invoke `using-git-worktrees` before starting. Do NOT invoke `finishing-a-development-branch` after tasks complete. Your scope is limited to executing the tasks in the current batch and updating their status. Return control to SDD when the batch is done. SDD controls workspace management and branch finishing -- these are handled by `/sdd-ship`.
+
+If the delegate attempts either transition, intercept and stop. Inform the user:
+> Task execution paused. The delegate tried to auto-advance to branch finishing -- SDD intercepted this. Run `/sdd-review-code` or `/sdd-verify` to continue the SDD workflow.
+
+### Skill override
 
 | Alternative | When to prefer |
 |---|---|
