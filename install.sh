@@ -16,6 +16,7 @@ SDD_LOCAL_VERSION=$(grep '^version:' "$SCHEMA_SRC" 2>/dev/null | awk '{print $2}
 # Default install root: ~/.claude
 # Skills -> <root>/skills/, Commands -> <root>/commands/
 INSTALL_ROOT="${SDD_INSTALL_ROOT:-$HOME/.claude}"
+LANG_CHOICE="en"
 
 usage() {
   cat <<EOF
@@ -25,6 +26,7 @@ Install light-sdd skills, commands, and templates for Claude Code.
 
 Options:
   --target DIR    Install to DIR (skills/ and commands/ created inside)
+  --lang LANG     Template language: en (default) or zh-CN
   --project       Install into the current project (.claude/) instead of user-level
   --check         Verify installation integrity without installing
   --update        Pull latest from GitHub and reinstall
@@ -32,12 +34,12 @@ Options:
   -h, --help      Show this help
 
 Examples:
-  ./install.sh                            # Install to ~/.claude/
-  ./install.sh --target .claude-internal  # Install to .claude-internal/
+  ./install.sh                            # Install to ~/.claude/ (English)
+  ./install.sh --lang zh-CN              # Install with Chinese templates
+  ./install.sh --target .claude-internal --lang zh-CN
   ./install.sh --project                  # Install to ./.claude/
   ./install.sh --check                    # Verify existing installation
   ./install.sh --update                   # Pull latest + reinstall
-  ./install.sh --update --target .claude-internal  # Update custom location
   ./install.sh --uninstall               # Remove SDD from default location
 EOF
 }
@@ -97,10 +99,15 @@ do_install() {
   done
 
   # Install templates into a shared sdd-templates directory
+  local tmpl_src="$TEMPLATES_SRC"
+  if [ "$LANG_CHOICE" != "en" ] && [ -d "$TEMPLATES_SRC/$LANG_CHOICE" ]; then
+    tmpl_src="$TEMPLATES_SRC/$LANG_CHOICE"
+    echo "  language: $LANG_CHOICE"
+  fi
   local tmpl_dest="$skills_dir/sdd-templates"
   mkdir -p "$tmpl_dest"
   for tmpl in "${SDD_TEMPLATES[@]}"; do
-    cp "$TEMPLATES_SRC/$tmpl" "$tmpl_dest/$tmpl"
+    cp "$tmpl_src/$tmpl" "$tmpl_dest/$tmpl"
     echo "  template: $tmpl"
   done
 
@@ -301,6 +308,14 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --target)
       INSTALL_ROOT="$2"
+      shift 2
+      ;;
+    --lang)
+      LANG_CHOICE="$2"
+      if [ "$LANG_CHOICE" != "en" ] && [ ! -d "$SCRIPT_DIR/templates/$LANG_CHOICE" ]; then
+        echo "Error: language '$LANG_CHOICE' not available. Options: en, zh-CN"
+        exit 1
+      fi
       shift 2
       ;;
     --project)
