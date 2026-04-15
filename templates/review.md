@@ -1,5 +1,7 @@
 ---
-generated_by: "{verify-change | requesting-code-review | sdd-review-spec}"
+generated_by:
+  framework: "{openspec | superpowers | sdd}"
+  skill: "{verify-change | requesting-code-review | sdd-review-spec}"
 sdd_action: "{sdd-review-spec | sdd-review-code | sdd-verify}"
 timestamp: "{timestamp}"
 ---

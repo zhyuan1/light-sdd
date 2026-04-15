@@ -79,7 +79,8 @@ If the delegate presents an execution choice anyway, intercept and stop. Inform 
 ## Post-check
 
 0. **Provenance stamp**: update the YAML frontmatter in `plan.md`:
-   - `generated_by`: the actual skill invoked (default: `writing-plans`, or the override skill used)
+   - `generated_by.framework`: `superpowers` (or the override framework, e.g. `ecc`)
+   - `generated_by.skill`: `writing-plans` (or the override skill, e.g. `plan`)
    - `sdd_action`: `sdd-plan`
    - `timestamp`: current ISO 8601 timestamp
 

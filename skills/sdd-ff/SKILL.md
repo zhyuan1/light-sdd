@@ -65,7 +65,8 @@ Expect from the delegate:
 ## Post-check
 
 0. **Provenance stamp**: for each generated artifact (specs, tasks.md, design.md), update its YAML frontmatter:
-   - `generated_by`: the actual skill invoked (default: `ff-change`, or the override skill used)
+   - `generated_by.framework`: `openspec` (or the override framework)
+   - `generated_by.skill`: `ff-change` (or the override skill)
    - `sdd_action`: `sdd-ff`
    - `timestamp`: current ISO 8601 timestamp
 

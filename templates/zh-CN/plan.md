@@ -1,5 +1,7 @@
 ---
-generated_by: "writing-plans"
+generated_by:
+  framework: "superpowers"
+  skill: "writing-plans"
 sdd_action: sdd-plan
 timestamp: "{timestamp}"
 ---

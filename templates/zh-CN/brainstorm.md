@@ -1,5 +1,7 @@
 ---
-generated_by: "brainstorming"
+generated_by:
+  framework: "superpowers"
+  skill: "brainstorming"
 sdd_action: sdd-brainstorm
 timestamp: "{timestamp}"
 ---

@@ -68,7 +68,8 @@ Flag criteria that are vague (e.g., "system should be fast", "works correctly").
 ## Post-check
 
 0. **Provenance stamp**: set the YAML frontmatter in the generated review file:
-   - `generated_by`: `sdd-review-spec` (self-logic, no external delegation)
+   - `generated_by.framework`: `sdd` (self-logic, no external delegation)
+   - `generated_by.skill`: `sdd-review-spec`
    - `sdd_action`: `sdd-review-spec`
    - `timestamp`: current ISO 8601 timestamp
 

@@ -1,5 +1,7 @@
 ---
-generated_by: ff-change
+generated_by:
+  framework: openspec
+  skill: ff-change
 sdd_action: sdd-ff
 timestamp: "2026-04-15T10:10:00Z"
 ---

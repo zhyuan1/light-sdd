@@ -1,5 +1,7 @@
 ---
-generated_by: continue-change
+generated_by:
+  framework: openspec
+  skill: continue-change
 sdd_action: sdd-propose
 timestamp: "2026-04-15T10:05:00Z"
 ---

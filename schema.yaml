@@ -12,8 +12,10 @@ provenance:
     - name: generated_by
       required: true
       description: >
-        The bottom-layer skill that produced this artifact
-        (e.g. "brainstorming", "continue-change", "ff-change").
+        Structured object identifying the bottom-layer skill that produced
+        this artifact. Contains two sub-fields:
+          framework: which framework the skill belongs to (openspec, superpowers, ecc, sdd)
+          skill: the specific skill name (e.g. "brainstorming", "ff-change")
     - name: sdd_action
       required: true
       description: >

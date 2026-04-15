@@ -65,7 +65,8 @@ To use an alternative skill, replace the delegation target:
 ## Post-check
 
 0. **Provenance stamp**: update the YAML frontmatter in `proposal.md`:
-   - `generated_by`: the actual skill invoked (default: `continue-change`, or the override skill used)
+   - `generated_by.framework`: `openspec` (or the override framework, e.g. `ecc`)
+   - `generated_by.skill`: `continue-change` (or the override skill, e.g. `think`)
    - `sdd_action`: `sdd-propose`
    - `timestamp`: current ISO 8601 timestamp
 

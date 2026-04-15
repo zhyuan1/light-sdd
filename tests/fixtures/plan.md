@@ -1,5 +1,7 @@
 ---
-generated_by: writing-plans
+generated_by:
+  framework: superpowers
+  skill: writing-plans
 sdd_action: sdd-plan
 timestamp: "2026-04-15T10:15:00Z"
 ---

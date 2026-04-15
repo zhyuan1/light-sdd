@@ -88,8 +88,10 @@ If the delegate attempts either transition, intercept and stop. Inform the user:
 
 ## Post-check
 
-0. **Provenance stamp**: when updating `tasks.md` (marking tasks `[x]`), ensure the frontmatter `generated_by` field is preserved. Do not overwrite existing provenance — append a `last_updated_by` field:
-   - `last_updated_by`: `sdd-code`
+0. **Provenance stamp**: when updating `tasks.md` (marking tasks `[x]`), ensure the frontmatter `generated_by` fields are preserved. Do not overwrite existing provenance — append update tracking:
+   - `last_updated_by.framework`: `superpowers` (or override framework)
+   - `last_updated_by.skill`: `test-driven-development` (or override skill)
+   - `last_updated_by.sdd_action`: `sdd-code`
    - `last_updated_at`: current ISO 8601 timestamp
 
 1. **Task status update** (SDD self-logic):
