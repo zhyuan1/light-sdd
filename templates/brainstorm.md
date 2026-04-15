@@ -1,5 +1,5 @@
 ---
-generated_by: "{skill}"
+generated_by: "brainstorming"
 sdd_action: sdd-brainstorm
 timestamp: "{timestamp}"
 ---

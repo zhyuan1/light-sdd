@@ -1,5 +1,5 @@
 ---
-generated_by: "{skill}"
+generated_by: "{verify-change | requesting-code-review | sdd-review-spec}"
 sdd_action: "{sdd-review-spec | sdd-review-code | sdd-verify}"
 timestamp: "{timestamp}"
 ---

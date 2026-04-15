@@ -1,5 +1,5 @@
 ---
-generated_by: "{skill}"
+generated_by: "writing-plans"
 sdd_action: sdd-plan
 timestamp: "{timestamp}"
 ---

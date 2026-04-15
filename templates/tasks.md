@@ -1,5 +1,5 @@
 ---
-generated_by: "{skill}"
+generated_by: "ff-change"
 sdd_action: sdd-ff
 timestamp: "{timestamp}"
 ---

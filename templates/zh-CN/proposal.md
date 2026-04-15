@@ -1,5 +1,5 @@
 ---
-generated_by: "{skill}"
+generated_by: "continue-change"
 sdd_action: sdd-propose
 timestamp: "{timestamp}"
 ---
