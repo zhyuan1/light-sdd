@@ -34,6 +34,20 @@ Execute implementation tasks following TDD discipline. Delegates to Superpowers'
    - Load the corresponding `specs/<capability>/spec.md` for: Interfaces, Behavior, Acceptance Criteria.
    - This context is provided to the delegate so implementation aligns with the spec.
 
+5. **Delegation availability check**:
+   - Search for the Superpowers skills in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths):
+     - `executing-plans` (primary execution)
+     - `test-driven-development` (TDD discipline)
+     - `systematic-debugging` (error recovery)
+   - If all found: proceed with default delegation.
+   - If partially found: proceed with available skills, warn about missing ones.
+   - If none found: check for ECC `tdd` / `hunt` skills as fallback.
+   - If fallback found: inform the user and use it:
+     > Superpowers skills not found. Using ECC `tdd` as fallback for TDD discipline.
+   - If no delegate found: fall back to direct coding mode:
+     > No execution skills available (Superpowers, ECC). Proceeding with direct TDD coding -- SDD will enforce RED-GREEN-REFACTOR cycle directly.
+   - Record which framework and skills are being used -- this feeds into the Provenance stamp in Post-check.
+
 ---
 
 ## Core Execution

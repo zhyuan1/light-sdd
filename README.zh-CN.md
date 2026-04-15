@@ -64,7 +64,7 @@ SDD 默认委派给以下框架：
 | [OpenSpec](https://github.com/fission-ai/openspec) | propose, ff, verify, ship | `npm i -g @fission-ai/openspec` |
 | [Superpowers](https://github.com/obra/superpowers) | brainstorm, plan, code, review-code, verify, ship | 将 skills 复制到 `~/.claude/skills/` |
 
-如果某个框架未安装，每个 SDD action 都列出了可替代的 skill（通常是 ECC 的对应 skill）。
+每个 SDD action 在运行时会自动检测目标框架是否可用。如果未找到，会自动降级到替代 skill（通常是 ECC）或手动模式，无需手动配置。
 
 ## 工作流
 
@@ -139,9 +139,19 @@ brainstorm.md -> proposal.md -> specs/ -> design.md -> tasks.md -> plan.md
 
 ## Override 机制
 
-### Skill 替换
+### 自动降级
 
-每个 Action 的 SKILL.md 包含 Override 部分，列出可替代的 skill。要切换默认委派目标，编辑 skill 文件中的委派目标即可。例如：
+每个委派型 action 在 Pre-check 阶段包含 **Delegation availability check** 步骤。它会在标准 skill 路径（`~/.claude/skills/`、`.claude/skills/`、项目配置路径）中搜索目标 skill。如果未找到：
+
+1. 尝试使用备选 skill（例如用 ECC `think` 替代 Superpowers `brainstorming`）
+2. 如果备选也不存在，进入手动模式（SDD 直接引导用户填写模板）
+3. 告知用户正在使用哪个 skill 以及原因
+
+这意味着 SDD 开箱即用 -- 安装 OpenSpec 和 Superpowers 可以获得最佳体验，但没有它们 SDD 也能优雅降级。
+
+### 手动替换
+
+每个 Action 的 SKILL.md 也包含 Override 部分，列出可替代的 skill。要永久切换默认委派目标，编辑 skill 文件中的委派目标即可。例如：
 
 **默认**（已安装 Superpowers）：
 ```

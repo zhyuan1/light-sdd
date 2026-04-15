@@ -319,6 +319,37 @@ t1_9() {
 }
 
 # ---------------------------------------------------------------------------
+# T1.10 Delegation availability check in skills
+# ---------------------------------------------------------------------------
+t1_10() {
+  local label="T1.10 Delegation availability check"
+  local ok=true
+
+  # All skills that delegate externally must have the availability check step
+  local delegating_skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                           sdd-review-code sdd-verify sdd-ship)
+
+  for skill in "${delegating_skills[@]}"; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+    if ! grep -q "Delegation availability check" "$skill_file"; then
+      fail "$label -- $skill missing 'Delegation availability check' in Pre-check"
+      ok=false
+    fi
+  done
+
+  # Non-delegating skills should NOT have the check
+  for skill in sdd-status sdd-review-spec; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+    if grep -q "Delegation availability check" "$skill_file"; then
+      fail "$label -- $skill has unexpected 'Delegation availability check' (no external delegation)"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
 # Run all structural tests
 # ---------------------------------------------------------------------------
 run_structural() {
@@ -332,6 +363,7 @@ run_structural() {
   t1_7
   t1_8
   t1_9
+  t1_10
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }

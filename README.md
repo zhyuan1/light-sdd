@@ -64,7 +64,7 @@ SDD delegates to these frameworks by default:
 | [OpenSpec](https://github.com/fission-ai/openspec) | propose, ff, verify, ship | `npm i -g @fission-ai/openspec` |
 | [Superpowers](https://github.com/obra/superpowers) | brainstorm, plan, code, review-code, verify, ship | Copy skills to `~/.claude/skills/` |
 
-If a framework is not installed, each SDD action lists override alternatives (typically ECC skills).
+Each SDD action automatically detects whether the target framework is available at runtime. If not found, it falls back to an alternative skill (typically ECC) or manual mode. No manual configuration needed.
 
 ## Workflow
 
@@ -139,7 +139,19 @@ All artifacts live in `.sdd/changes/<change-name>/`. Progress is inferred from w
 
 ## Override Mechanism
 
-Each action's SKILL.md contains an Override section listing alternative skills. To switch from the default, edit the skill file or replace the delegation target. Example:
+### Automatic Fallback
+
+Every delegating action includes a **Delegation availability check** in its Pre-check phase. It searches for the target skill in the standard skill paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths). If the target is not found:
+
+1. Try the listed fallback skill (e.g., ECC `think` instead of Superpowers `brainstorming`)
+2. If fallback also missing, proceed in manual mode (SDD guides the user through the template directly)
+3. Inform the user which skill is being used and why
+
+This means SDD works out of the box -- install OpenSpec and Superpowers for the best experience, but SDD degrades gracefully without them.
+
+### Manual Override
+
+Each action's SKILL.md also contains an Override section listing alternative skills. To permanently switch from the default, edit the skill file or replace the delegation target. Example:
 
 **Default** (Superpowers installed):
 ```

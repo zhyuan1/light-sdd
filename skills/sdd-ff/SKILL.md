@@ -38,6 +38,16 @@ Fast-forward through the artifact dependency chain by batch-generating all missi
 
    Wait for confirmation before proceeding.
 
+5. **Delegation availability check**:
+   - Search for the OpenSpec `ff-change` skill in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
+   - If found: proceed with default delegation.
+   - If not found: check for ECC `plan` skill as fallback.
+   - If fallback found: inform the user and use it:
+     > OpenSpec `ff-change` not found. Using ECC `plan` as fallback.
+   - If no delegate found: fall back to manual mode:
+     > No fast-forward skill available (OpenSpec, ECC). Proceeding in manual mode -- SDD will generate artifacts using templates and spec context directly.
+   - Record which framework and skill are being used -- this feeds into the Provenance stamp in Post-check.
+
 ---
 
 ## Core Execution
