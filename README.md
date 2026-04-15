@@ -33,14 +33,23 @@ Each action skill follows a three-part structure:
 # User-level (all projects)
 ./install.sh
 
+# With Chinese templates
+./install.sh --lang zh-CN
+
 # Project-level (current project only)
 ./install.sh --project
 
-# Custom target
-./install.sh --target /path/to/skills/
+# Custom target directory
+./install.sh --target .claude-internal
+
+# Combine options
+./install.sh --target .claude-internal --lang zh-CN
 
 # Verify installation
 ./install.sh --check
+
+# Update to latest version
+./install.sh --update
 
 # Uninstall
 ./install.sh --uninstall
@@ -142,9 +151,44 @@ Core Execution: invoke brainstorming
 Core Execution: invoke think
 ```
 
+### Transition Suppression
+
+Some Superpowers skills auto-advance to the next skill after completion. SDD suppresses this to keep orchestration control:
+
+| SDD Action | Suppressed transition |
+|------------|---------------------|
+| `sdd-brainstorm` | brainstorming -> writing-plans |
+| `sdd-plan` | writing-plans -> executing-plans |
+| `sdd-code` | executing-plans -> git-worktrees / finishing-branch |
+
+## Provenance
+
+Every generated artifact carries YAML frontmatter recording its origin:
+
+```yaml
+---
+generated_by: brainstorming       # bottom-layer skill that produced it
+sdd_action: sdd-brainstorm        # SDD action that orchestrated it
+timestamp: "2026-04-15T10:00:00Z" # when it was generated
+---
+```
+
+This enables traceability for debugging, override auditing, and team handoffs.
+
 ## Schema
 
-`schema.yaml` defines content constraints for all 7 artifact types. It specifies which sections are required in each artifact but says nothing about flow or execution. Templates are the interface contract between schema and actions.
+`schema.yaml` defines content constraints for all 7 artifact types and the provenance frontmatter spec. It specifies which sections are required in each artifact but says nothing about flow or execution. Templates are the interface contract between schema and actions.
+
+## Templates
+
+Templates are available in two languages:
+
+| Language | Directory | Install |
+|----------|-----------|---------|
+| English (default) | `templates/` | `./install.sh` |
+| Chinese | `templates/zh-CN/` | `./install.sh --lang zh-CN` |
+
+Both maintain the same section structure and provenance frontmatter. Schema validation works with either language.
 
 ## License
 
