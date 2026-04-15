@@ -1,3 +1,9 @@
+---
+generated_by: "{skill}"
+sdd_action: sdd-plan
+timestamp: "{timestamp}"
+---
+
 # Plan: {change-name}
 
 ## Current Batch

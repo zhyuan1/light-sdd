@@ -72,6 +72,11 @@ If the delegate attempts to transition anyway, intercept and stop. Inform the us
 
 ## Post-check
 
+0. **Provenance stamp**: update the YAML frontmatter in `brainstorm.md`:
+   - `generated_by`: the actual skill invoked (default: `brainstorming`, or the override skill used)
+   - `sdd_action`: `sdd-brainstorm`
+   - `timestamp`: current ISO 8601 timestamp
+
 1. **Required section validation**:
    - Verify `brainstorm.md` contains non-empty: Problem Statement, Raw Ideas (>= 3 items), Decision.
    - If any required section is missing or empty, report the gap and re-invoke the delegate.

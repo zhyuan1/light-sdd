@@ -64,6 +64,11 @@ Expect from the delegate:
 
 ## Post-check
 
+0. **Provenance stamp**: for each generated artifact (specs, tasks.md, design.md), update its YAML frontmatter:
+   - `generated_by`: the actual skill invoked (default: `ff-change`, or the override skill used)
+   - `sdd_action`: `sdd-ff`
+   - `timestamp`: current ISO 8601 timestamp
+
 1. **Per-artifact validation**:
    For each generated artifact, validate against `schema.yaml`:
    - **spec.md**: must have Requirements, Interfaces, Behavior, Acceptance Criteria.

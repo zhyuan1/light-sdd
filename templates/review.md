@@ -1,3 +1,9 @@
+---
+generated_by: "{skill}"
+sdd_action: "{sdd-review-spec | sdd-review-code | sdd-verify}"
+timestamp: "{timestamp}"
+---
+
 # Review: {type}
 
 ## Review Type

@@ -4,6 +4,25 @@
 
 version: "0.1.0"
 
+# Provenance frontmatter -- required on every generated artifact.
+# Enables traceability: which skill produced this file, when, and via which action.
+provenance:
+  format: yaml_frontmatter
+  fields:
+    - name: generated_by
+      required: true
+      description: >
+        The bottom-layer skill that produced this artifact
+        (e.g. "brainstorming", "continue-change", "ff-change").
+    - name: sdd_action
+      required: true
+      description: >
+        The SDD action that orchestrated the generation
+        (e.g. "sdd-brainstorm", "sdd-propose", "sdd-ff").
+    - name: timestamp
+      required: true
+      description: ISO 8601 timestamp when the artifact was generated.
+
 artifacts:
 
   brainstorm:

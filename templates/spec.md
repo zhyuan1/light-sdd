@@ -1,3 +1,9 @@
+---
+generated_by: "{skill}"
+sdd_action: sdd-ff
+timestamp: "{timestamp}"
+---
+
 # Spec: {capability-name}
 
 ## Requirements

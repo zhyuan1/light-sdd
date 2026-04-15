@@ -1,3 +1,9 @@
+---
+generated_by: continue-change
+sdd_action: sdd-propose
+timestamp: "2026-04-15T10:05:00Z"
+---
+
 # Proposal: test-feature
 
 ## Motivation

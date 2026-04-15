@@ -64,6 +64,11 @@ To use an alternative skill, replace the delegation target:
 
 ## Post-check
 
+0. **Provenance stamp**: update the YAML frontmatter in `proposal.md`:
+   - `generated_by`: the actual skill invoked (default: `continue-change`, or the override skill used)
+   - `sdd_action`: `sdd-propose`
+   - `timestamp`: current ISO 8601 timestamp
+
 1. **Required section validation**:
    - Verify `proposal.md` contains non-empty Motivation, Approach, and Capabilities sections.
    - If any required section is missing or empty, report the gap and re-invoke the delegate with specific guidance. Max 2 retries.

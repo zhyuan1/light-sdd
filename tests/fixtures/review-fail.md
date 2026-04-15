@@ -1,3 +1,9 @@
+---
+generated_by: verify-change + verification-before-completion
+sdd_action: sdd-verify
+timestamp: "2026-04-15T10:30:00Z"
+---
+
 # Review: verification
 
 ## Review Type

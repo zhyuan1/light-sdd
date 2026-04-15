@@ -74,6 +74,11 @@ Expect from the delegate:
 
 ## Post-check
 
+0. **Provenance stamp**: set the YAML frontmatter in the generated verification review:
+   - `generated_by`: skills invoked (default: `verify-change` + `verification-before-completion`)
+   - `sdd_action`: `sdd-verify`
+   - `timestamp`: current ISO 8601 timestamp
+
 1. **Scenario coverage statistics** (SDD self-logic):
    For each capability, calculate:
    ```

@@ -270,6 +270,55 @@ t1_8() {
 }
 
 # ---------------------------------------------------------------------------
+# T1.9 Provenance frontmatter in templates
+# ---------------------------------------------------------------------------
+t1_9() {
+  local label="T1.9 Provenance frontmatter in templates"
+  local ok=true
+
+  for tmpl in "$REPO_ROOT"/templates/*.md; do
+    local tmpl_name
+    tmpl_name=$(basename "$tmpl")
+
+    # Check YAML frontmatter exists
+    if ! head -1 "$tmpl" | grep -q "^---"; then
+      fail "$label -- $tmpl_name missing YAML frontmatter"
+      ok=false
+      continue
+    fi
+
+    # Check required provenance fields
+    for field in generated_by sdd_action timestamp; do
+      if ! grep -q "$field:" "$tmpl"; then
+        fail "$label -- $tmpl_name missing provenance field '$field'"
+        ok=false
+      fi
+    done
+  done
+
+  # Check schema defines provenance
+  if ! grep -q "^provenance:" "$REPO_ROOT/schema.yaml"; then
+    fail "$label -- schema.yaml missing 'provenance:' definition"
+    ok=false
+  fi
+
+  # Check skills have provenance stamp in Post-check (except sdd-status and sdd-ship)
+  for skill_file in "$REPO_ROOT"/skills/*/SKILL.md; do
+    local skill_name
+    skill_name=$(basename "$(dirname "$skill_file")")
+    if [ "$skill_name" = "sdd-status" ] || [ "$skill_name" = "sdd-ship" ]; then
+      continue
+    fi
+    if ! grep -qi "provenance" "$skill_file"; then
+      fail "$label -- $skill_name SKILL.md missing provenance stamp instruction"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
 # Run all structural tests
 # ---------------------------------------------------------------------------
 run_structural() {
@@ -282,6 +331,7 @@ run_structural() {
   t1_6
   t1_7
   t1_8
+  t1_9
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }

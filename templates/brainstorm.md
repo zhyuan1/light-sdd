@@ -1,3 +1,9 @@
+---
+generated_by: "{skill}"
+sdd_action: sdd-brainstorm
+timestamp: "{timestamp}"
+---
+
 # Brainstorm: {change-name}
 
 ## Problem Statement

@@ -73,6 +73,11 @@ Expect from the delegate:
 
 ## Post-check
 
+0. **Provenance stamp**: set the YAML frontmatter in the generated review file:
+   - `generated_by`: Phase 1 `sdd-review-code` (self-logic) + Phase 2 skill invoked (default: `requesting-code-review`)
+   - `sdd_action`: `sdd-review-code`
+   - `timestamp`: current ISO 8601 timestamp
+
 1. **Merge findings**:
    Combine Phase 1 (spec compliance) and Phase 2 (code quality) findings into a single review artifact.
 

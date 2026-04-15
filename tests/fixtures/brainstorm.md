@@ -1,3 +1,9 @@
+---
+generated_by: brainstorming
+sdd_action: sdd-brainstorm
+timestamp: "2026-04-15T10:00:00Z"
+---
+
 # Brainstorm: test-feature
 
 ## Problem Statement

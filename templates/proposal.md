@@ -1,3 +1,9 @@
+---
+generated_by: "{skill}"
+sdd_action: sdd-propose
+timestamp: "{timestamp}"
+---
+
 # Proposal: {change-name}
 
 ## Motivation

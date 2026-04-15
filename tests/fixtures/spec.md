@@ -1,3 +1,9 @@
+---
+generated_by: ff-change
+sdd_action: sdd-ff
+timestamp: "2026-04-15T10:10:00Z"
+---
+
 # Spec: auth
 
 ## Requirements

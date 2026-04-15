@@ -78,6 +78,11 @@ If the delegate presents an execution choice anyway, intercept and stop. Inform 
 
 ## Post-check
 
+0. **Provenance stamp**: update the YAML frontmatter in `plan.md`:
+   - `generated_by`: the actual skill invoked (default: `writing-plans`, or the override skill used)
+   - `sdd_action`: `sdd-plan`
+   - `timestamp`: current ISO 8601 timestamp
+
 1. **Completeness validation**:
    - Verify `plan.md` identifies the correct batch.
    - Verify every unchecked task in the batch has a corresponding Task Detail section.
