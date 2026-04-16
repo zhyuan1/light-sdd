@@ -32,15 +32,8 @@ Facilitate structured, divergent exploration before committing to an approach. D
    - Read existing project context (README, architecture docs) if available.
    - Read the user's problem description.
 
-5. **Delegation availability check**:
-   - Search for the Superpowers `brainstorming` skill in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
-   - If found: proceed with default delegation.
-   - If not found: check for ECC `think` skill as fallback.
-   - If fallback found: inform the user and use it:
-     > Superpowers `brainstorming` not found. Using ECC `think` as fallback.
-   - If no delegate found: fall back to manual mode -- use the template directly and guide the user through brainstorming without a delegate:
-     > No brainstorming skill available (Superpowers, ECC). Proceeding in manual mode -- SDD will guide you through the brainstorm template directly.
-   - Record which framework and skill are being used -- this feeds into the Provenance stamp in Post-check.
+5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-brainstorm`,
+   following `delegation-protocol.md`. Record resolved framework/skill for provenance.
 
 ---
 

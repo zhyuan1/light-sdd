@@ -33,15 +33,8 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
    - If `brainstorm.md` exists in the change directory, read it for context.
    - If it does not exist, that is fine -- brainstorming is optional.
 
-5. **Delegation availability check**:
-   - Search for the OpenSpec `continue-change` skill in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
-   - If found: proceed with default delegation.
-   - If not found: check for ECC `think` skill as fallback.
-   - If fallback found: inform the user and use it:
-     > OpenSpec `continue-change` not found. Using ECC `think` as fallback.
-   - If no delegate found: fall back to manual mode:
-     > No proposal skill available (OpenSpec, ECC). Proceeding in manual mode -- SDD will guide you through the proposal template directly.
-   - Record which framework and skill are being used -- this feeds into the Provenance stamp in Post-check.
+5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-propose`,
+   following `delegation-protocol.md`. Record resolved framework/skill for provenance.
 
 ---
 

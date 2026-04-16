@@ -38,17 +38,8 @@ Finalize an SDD change through a 3-step orchestration: sync specs to canonical l
 
    Wait for explicit confirmation.
 
-5. **Delegation availability check**:
-   - For Step 1 & 2: search for the OpenSpec `sync-specs` and `archive-change` skills in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
-   - For Step 3: search for the Superpowers `finishing-a-development-branch` skill.
-   - For each step, if the target skill is not found:
-     - `sync-specs` missing: SDD performs a direct file copy from `.sdd/changes/<name>/specs/` to the project spec location.
-     - `archive-change` missing: SDD performs a direct directory move to `.sdd/changes/archive/`.
-     - `finishing-a-development-branch` missing: check for ECC `check` as fallback, or fall back to manual git operations:
-       > Superpowers `finishing-a-development-branch` not found. SDD will present git options (merge/PR/preserve/discard) and execute directly.
-   - Inform the user of any fallbacks:
-     > Using direct SDD logic for spec sync and archive (OpenSpec not found). Using manual git for branch finishing (Superpowers not found).
-   - Record which frameworks and skills are being used for each step -- this feeds into the Provenance stamp in Post-check.
+5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-ship`,
+   following `delegation-protocol.md` (multi-phase independent resolution). Record resolved frameworks/skills for provenance.
 
 ---
 

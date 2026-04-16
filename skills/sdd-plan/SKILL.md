@@ -37,15 +37,8 @@ Create a detailed, actionable execution plan for the next batch of tasks. Delega
    - If `plan.md` does not exist, copy `templates/plan.md` into the change directory.
    - If `plan.md` exists from a previous batch, it will be overwritten for the new batch.
 
-6. **Delegation availability check**:
-   - Search for the Superpowers `writing-plans` skill in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
-   - If found: proceed with default delegation.
-   - If not found: check for ECC `plan` / `think` skill as fallback.
-   - If fallback found: inform the user and use it:
-     > Superpowers `writing-plans` not found. Using ECC `plan` as fallback.
-   - If no delegate found: fall back to manual mode:
-     > No planning skill available (Superpowers, ECC). Proceeding in manual mode -- SDD will generate the plan using spec context and task list directly.
-   - Record which framework and skill are being used -- this feeds into the Provenance stamp in Post-check.
+6. **Delegation**: Resolve delegates per `delegates.yaml → sdd-plan`,
+   following `delegation-protocol.md`. Record resolved framework/skill for provenance.
 
 ---
 

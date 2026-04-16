@@ -322,26 +322,30 @@ t1_9() {
 # T1.10 Delegation availability check in skills
 # ---------------------------------------------------------------------------
 t1_10() {
-  local label="T1.10 Delegation availability check"
+  local label="T1.10 Delegation references delegates.yaml + protocol"
   local ok=true
 
-  # All skills that delegate externally must have the availability check step
+  # All skills that delegate externally must reference both delegates.yaml and delegation-protocol.md
   local delegating_skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
                            sdd-review-code sdd-verify sdd-ship)
 
   for skill in "${delegating_skills[@]}"; do
     local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
-    if ! grep -q "Delegation availability check" "$skill_file"; then
-      fail "$label -- $skill missing 'Delegation availability check' in Pre-check"
+    if ! grep -q "delegates.yaml" "$skill_file"; then
+      fail "$label -- $skill missing 'delegates.yaml' reference in Pre-check"
+      ok=false
+    fi
+    if ! grep -q "delegation-protocol.md" "$skill_file"; then
+      fail "$label -- $skill missing 'delegation-protocol.md' reference in Pre-check"
       ok=false
     fi
   done
 
-  # Non-delegating skills should NOT have the check
+  # Non-delegating skills should NOT reference delegates.yaml
   for skill in sdd-status sdd-review-spec; do
     local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
-    if grep -q "Delegation availability check" "$skill_file"; then
-      fail "$label -- $skill has unexpected 'Delegation availability check' (no external delegation)"
+    if grep -q "delegates.yaml" "$skill_file"; then
+      fail "$label -- $skill has unexpected 'delegates.yaml' reference (no external delegation)"
       ok=false
     fi
   done
@@ -350,8 +354,171 @@ t1_10() {
 }
 
 # ---------------------------------------------------------------------------
-# Run all structural tests
+# T1.11 delegates.yaml integrity
 # ---------------------------------------------------------------------------
+t1_11() {
+  local label="T1.11 delegates.yaml integrity"
+  local ok=true
+  local delegates="$REPO_ROOT/delegates.yaml"
+
+  # File must exist
+  if [ ! -f "$delegates" ]; then
+    fail "$label -- delegates.yaml missing"
+    return
+  fi
+
+  # Must contain entries for all 8 delegating skills
+  local delegating_skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                           sdd-review-code sdd-verify sdd-ship)
+
+  for skill in "${delegating_skills[@]}"; do
+    if ! grep -q "^${skill}:" "$delegates"; then
+      fail "$label -- delegates.yaml missing entry for '$skill'"
+      ok=false
+    fi
+  done
+
+  # Each entry must have primary (or phases) and manual_message (or phases with manual_message)
+  for skill in "${delegating_skills[@]}"; do
+    # Check for primary or phases key under the skill
+    local has_primary has_phases
+    has_primary=$(awk "/^${skill}:/{found=1; next} /^[a-z]/{found=0} found && /^  primary:/{print 1; exit}" "$delegates")
+    has_phases=$(awk "/^${skill}:/{found=1; next} /^[a-z]/{found=0} found && /^  phases:/{print 1; exit}" "$delegates")
+
+    if [ -z "$has_primary" ] && [ -z "$has_phases" ]; then
+      fail "$label -- $skill missing 'primary' or 'phases' in delegates.yaml"
+      ok=false
+    fi
+
+    # Check for manual_message at action level or within phases
+    local has_manual
+    has_manual=$(awk "/^${skill}:/{found=1; next} /^[a-z]/{found=0} found && /manual_message:/{print 1; exit}" "$delegates")
+
+    if [ -z "$has_manual" ]; then
+      fail "$label -- $skill missing 'manual_message' in delegates.yaml"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T1.12 delegation-protocol.md existence
+# ---------------------------------------------------------------------------
+t1_12() {
+  local label="T1.12 delegation-protocol.md existence"
+  local ok=true
+  local protocol="$REPO_ROOT/delegation-protocol.md"
+
+  if [ ! -f "$protocol" ]; then
+    fail "$label -- delegation-protocol.md missing"
+    return
+  fi
+
+  # Check key protocol sections
+  for section in "Search Path Resolution" "Single-Delegate Resolution" "Multi-Skill Partial Availability" "Multi-Phase Independent Resolution" "User Notification Format" "Provenance Recording" "Transition Suppression"; do
+    if ! grep -q "$section" "$protocol"; then
+      fail "$label -- delegation-protocol.md missing section '$section'"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T1.13 delegates.yaml <-> SKILL.md frontmatter cross-validation
+# ---------------------------------------------------------------------------
+t1_13() {
+  local label="T1.13 delegates.yaml <-> SKILL.md frontmatter alignment"
+  local ok=true
+  local delegates="$REPO_ROOT/delegates.yaml"
+
+  local delegating_skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                           sdd-review-code sdd-verify sdd-ship)
+
+  for skill in "${delegating_skills[@]}"; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+
+    # Extract delegates_to list from SKILL.md frontmatter
+    local fm_delegates
+    fm_delegates=$(sed -n '/^---$/,/^---$/p' "$skill_file" | awk '/delegates_to:/{found=1; next} found && /- /{gsub(/.*- "?/, ""); gsub(/".*/, ""); print} found && !/- / && !/^$/{found=0}')
+
+    # For each delegate in frontmatter, verify it appears as a skill in delegates.yaml under this action
+    while IFS= read -r delegate_skill; do
+      [ -z "$delegate_skill" ] && continue
+      # Check that delegates.yaml mentions this skill name under the action entry
+      local in_registry
+      in_registry=$(awk "/^${skill}:/{found=1; next} /^[a-z]/{found=0} found && /skill: ${delegate_skill}/{print 1; exit}" "$delegates")
+
+      if [ -z "$in_registry" ]; then
+        fail "$label -- $skill frontmatter lists delegate '$delegate_skill' not found in delegates.yaml"
+        ok=false
+      fi
+    done <<< "$fm_delegates"
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T1.14 transition_suppression consistency (delegates.yaml <-> SKILL.md)
+# ---------------------------------------------------------------------------
+t1_14() {
+  local label="T1.14 transition_suppression <-> SDD OVERRIDE consistency"
+  local ok=true
+  local delegates="$REPO_ROOT/delegates.yaml"
+
+  # Extract skills that have transition_suppression in delegates.yaml
+  local yaml_suppressed=()
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    yaml_suppressed+=("$line")
+  done < <(awk '/^[a-z].*:$/{skill=$0; sub(/:$/,"",skill)} /transition_suppression:/{print skill}' "$delegates")
+
+  # Extract skills that have SDD OVERRIDE in SKILL.md
+  local md_suppressed=()
+  for skill_file in "$REPO_ROOT"/skills/*/SKILL.md; do
+    local skill_name
+    skill_name=$(basename "$(dirname "$skill_file")")
+    if grep -q "SDD OVERRIDE" "$skill_file"; then
+      md_suppressed+=("$skill_name")
+    fi
+  done
+
+  # Check every yaml_suppressed is in md_suppressed
+  for skill in "${yaml_suppressed[@]}"; do
+    local found=false
+    for md_skill in "${md_suppressed[@]}"; do
+      if [ "$skill" = "$md_skill" ]; then
+        found=true
+        break
+      fi
+    done
+    if ! $found; then
+      fail "$label -- $skill has transition_suppression in delegates.yaml but no SDD OVERRIDE in SKILL.md"
+      ok=false
+    fi
+  done
+
+  # Check every md_suppressed is in yaml_suppressed
+  for skill in "${md_suppressed[@]}"; do
+    local found=false
+    for yaml_skill in "${yaml_suppressed[@]}"; do
+      if [ "$skill" = "$yaml_skill" ]; then
+        found=true
+        break
+      fi
+    done
+    if ! $found; then
+      fail "$label -- $skill has SDD OVERRIDE in SKILL.md but no transition_suppression in delegates.yaml"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
 run_structural() {
   echo "=== Structural Tests ==="
   t1_1
@@ -364,6 +531,10 @@ run_structural() {
   t1_8
   t1_9
   t1_10
+  t1_11
+  t1_12
+  t1_13
+  t1_14
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }

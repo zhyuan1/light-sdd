@@ -30,16 +30,8 @@ Perform a two-phase code review: first check spec compliance (SDD self-logic), t
    - For each completed task in `tasks.md`, identify the referenced capability.
    - Load the corresponding `specs/<capability>/spec.md` for comparison.
 
-5. **Delegation availability check**:
-   - Phase 1 (spec compliance) is SDD self-logic -- no external dependency.
-   - For Phase 2: search for the Superpowers `requesting-code-review` skill in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
-   - If found: proceed with default delegation for Phase 2.
-   - If not found: check for ECC `check` skill as fallback.
-   - If fallback found: inform the user and use it:
-     > Superpowers `requesting-code-review` not found. Using ECC `check` as fallback for Phase 2 (code quality).
-   - If no delegate found: Phase 1 (spec compliance) still runs; Phase 2 skipped with notice:
-     > No code review skill available (Superpowers, ECC). Phase 1 (spec compliance) will run. Phase 2 (code quality) skipped -- consider manual code review.
-   - Record which framework and skill are being used -- this feeds into the Provenance stamp in Post-check.
+5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-review-code`,
+   following `delegation-protocol.md` (multi-phase independent resolution). Record resolved framework/skill for provenance.
 
 ---
 

@@ -36,17 +36,8 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to O
      ```
    - Report total AC count to the user.
 
-4. **Delegation availability check**:
-   - For Step 1: search for the OpenSpec `verify-change` skill in the skill search paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths).
-   - For Step 2: search for the Superpowers `verification-before-completion` skill.
-   - If both found: proceed with default two-step delegation.
-   - If only one found: proceed with the available step, skip the other with notice.
-   - If neither found: check for ECC `check` / `verification-loop` as fallback.
-   - If fallback found: inform the user and use it:
-     > OpenSpec/Superpowers verification skills not found. Using ECC `check` as fallback.
-   - If no delegate found: fall back to manual verification:
-     > No verification skills available (OpenSpec, Superpowers, ECC). SDD will verify acceptance criteria against test results and implementation directly.
-   - Record which frameworks and skills are being used -- this feeds into the Provenance stamp in Post-check.
+4. **Delegation**: Resolve delegates per `delegates.yaml → sdd-verify`,
+   following `delegation-protocol.md` (multi-phase independent resolution). Record resolved frameworks/skills for provenance.
 
 ---
 

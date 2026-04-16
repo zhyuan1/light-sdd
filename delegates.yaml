@@ -1,0 +1,177 @@
+# delegates.yaml -- Centralized delegation registry for SDD skills
+#
+# Maps each SDD action to its primary delegate(s), fallback(s),
+# and manual-mode message. Consumed by delegation-protocol.md.
+#
+# Structure per action:
+#   primary:         list of {framework, skill} -- tried in order
+#   fallback:        list of {framework, skill} -- tried if all primaries missing
+#   manual_message:  string shown when no delegate is available
+#   phases:          (optional) multi-phase actions with independent resolution
+#   transition_suppression: (optional) override directives for delegate auto-transitions
+
+sdd-brainstorm:
+  primary:
+    - framework: superpowers
+      skill: brainstorming
+  fallback:
+    - framework: ecc
+      skill: think
+  manual_message: >-
+    No brainstorming skill available (Superpowers, ECC).
+    Proceeding in manual mode -- SDD will guide you through
+    the brainstorm template directly.
+  transition_suppression:
+    - delegate_skill: brainstorming
+      suppress:
+        - writing-plans
+      override_text: >-
+        SDD OVERRIDE: Do NOT invoke `writing-plans` or any other skill after
+        brainstorming completes. Your scope is limited to producing `brainstorm.md`.
+        Return control to SDD when the brainstorm document is finalized. SDD controls
+        the workflow -- the next step is `/sdd-propose`, not `writing-plans`.
+
+sdd-propose:
+  primary:
+    - framework: openspec
+      skill: continue-change
+  fallback:
+    - framework: ecc
+      skill: think
+  manual_message: >-
+    No proposal skill available (OpenSpec, ECC).
+    Proceeding in manual mode -- SDD will guide you through
+    the proposal template directly.
+
+sdd-ff:
+  primary:
+    - framework: openspec
+      skill: ff-change
+  fallback:
+    - framework: ecc
+      skill: plan
+  manual_message: >-
+    No fast-forward skill available (OpenSpec, ECC).
+    Proceeding in manual mode -- SDD will generate artifacts
+    using templates and spec context directly.
+
+sdd-plan:
+  primary:
+    - framework: superpowers
+      skill: writing-plans
+  fallback:
+    - framework: ecc
+      skill: plan
+    - framework: ecc
+      skill: think
+  manual_message: >-
+    No planning skill available (Superpowers, ECC).
+    Proceeding in manual mode -- SDD will generate the plan
+    using spec context and task list directly.
+  transition_suppression:
+    - delegate_skill: writing-plans
+      suppress:
+        - subagent-driven-development
+        - executing-plans
+      override_text: >-
+        SDD OVERRIDE: Do NOT invoke `subagent-driven-development`, `executing-plans`,
+        or any other skill after plan generation. Do NOT present an execution handoff
+        prompt. Your scope is limited to producing `plan.md`. Return control to SDD
+        when the plan document is finalized. SDD controls the workflow -- the next
+        step is `/sdd-code`, not an execution skill.
+
+sdd-code:
+  primary:
+    - framework: superpowers
+      skill: executing-plans
+    - framework: superpowers
+      skill: test-driven-development
+    - framework: superpowers
+      skill: systematic-debugging
+  fallback:
+    - framework: ecc
+      skill: tdd
+    - framework: ecc
+      skill: hunt
+  manual_message: >-
+    No execution skills available (Superpowers, ECC).
+    Proceeding with direct TDD coding -- SDD will enforce
+    RED-GREEN-REFACTOR cycle directly.
+  partial_availability: true
+  transition_suppression:
+    - delegate_skill: executing-plans
+      suppress:
+        - using-git-worktrees
+        - finishing-a-development-branch
+      override_text: >-
+        SDD OVERRIDE: Do NOT invoke `using-git-worktrees` before starting.
+        Do NOT invoke `finishing-a-development-branch` after tasks complete.
+        Your scope is limited to executing the tasks in the current batch and
+        updating their status. Return control to SDD when the batch is done.
+        SDD controls workspace management and branch finishing -- these are
+        handled by `/sdd-ship`.
+
+sdd-review-code:
+  phases:
+    phase1:
+      description: Spec compliance review (SDD self-logic)
+      delegate: self
+    phase2:
+      primary:
+        - framework: superpowers
+          skill: requesting-code-review
+      fallback:
+        - framework: ecc
+          skill: check
+      manual_message: >-
+        No code review skill available (Superpowers, ECC).
+        Phase 1 (spec compliance) will run.
+        Phase 2 (code quality) skipped -- consider manual code review.
+
+sdd-verify:
+  phases:
+    step1:
+      primary:
+        - framework: openspec
+          skill: verify-change
+    step2:
+      primary:
+        - framework: superpowers
+          skill: verification-before-completion
+  fallback:
+    - framework: ecc
+      skill: check
+    - framework: ecc
+      skill: verification-loop
+  manual_message: >-
+    No verification skills available (OpenSpec, Superpowers, ECC).
+    SDD will verify acceptance criteria against test results
+    and implementation directly.
+  partial_availability: true
+
+sdd-ship:
+  phases:
+    sync:
+      primary:
+        - framework: openspec
+          skill: sync-specs
+      inline_fallback: >-
+        SDD performs a direct file copy from `.sdd/changes/<name>/specs/`
+        to the project spec location.
+    archive:
+      primary:
+        - framework: openspec
+          skill: archive-change
+      inline_fallback: >-
+        SDD performs a direct directory move to `.sdd/changes/archive/`.
+    finish:
+      primary:
+        - framework: superpowers
+          skill: finishing-a-development-branch
+      fallback:
+        - framework: ecc
+          skill: check
+      manual_message: >-
+        Superpowers `finishing-a-development-branch` not found.
+        SDD will present git options (merge/PR/preserve/discard)
+        and execute directly.

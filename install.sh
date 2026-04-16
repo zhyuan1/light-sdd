@@ -9,6 +9,8 @@ SKILLS_SRC="$SCRIPT_DIR/skills"
 TEMPLATES_SRC="$SCRIPT_DIR/templates"
 COMMANDS_SRC="$SCRIPT_DIR/commands"
 SCHEMA_SRC="$SCRIPT_DIR/schema.yaml"
+DELEGATES_SRC="$SCRIPT_DIR/delegates.yaml"
+PROTOCOL_SRC="$SCRIPT_DIR/delegation-protocol.md"
 
 SDD_REPO="https://github.com/zhyuan1/light-sdd.git"
 SDD_LOCAL_VERSION=$(grep '^version:' "$SCHEMA_SRC" 2>/dev/null | awk '{print $2}' | tr -d '"' || echo "unknown")
@@ -115,6 +117,12 @@ do_install() {
   cp "$SCHEMA_SRC" "$tmpl_dest/schema.yaml"
   echo "  schema: schema.yaml"
 
+  # Install delegates registry and delegation protocol
+  cp "$DELEGATES_SRC" "$tmpl_dest/delegates.yaml"
+  echo "  delegates: delegates.yaml"
+  cp "$PROTOCOL_SRC" "$tmpl_dest/delegation-protocol.md"
+  echo "  protocol: delegation-protocol.md"
+
   # Install commands
   mkdir -p "$commands_dir"
   for cmd in "${SDD_COMMANDS[@]}"; do
@@ -123,7 +131,7 @@ do_install() {
   done
 
   echo ""
-  echo "Done. Installed ${#SDD_SKILLS[@]} skills, ${#SDD_COMMANDS[@]} commands, ${#SDD_TEMPLATES[@]} templates, 1 schema."
+  echo "Done. Installed ${#SDD_SKILLS[@]} skills, ${#SDD_COMMANDS[@]} commands, ${#SDD_TEMPLATES[@]} templates, 1 schema, 1 delegates registry, 1 delegation protocol."
   echo ""
   echo "Available commands:"
   echo "  /sdd-status       -- Check progress of a change"
@@ -170,6 +178,20 @@ do_check() {
     echo "  [ok] schema.yaml"
   else
     echo "  [MISSING] schema.yaml"
+    errors=$((errors + 1))
+  fi
+
+  if [ -f "$tmpl_dest/delegates.yaml" ]; then
+    echo "  [ok] delegates.yaml"
+  else
+    echo "  [MISSING] delegates.yaml"
+    errors=$((errors + 1))
+  fi
+
+  if [ -f "$tmpl_dest/delegation-protocol.md" ]; then
+    echo "  [ok] delegation-protocol.md"
+  else
+    echo "  [MISSING] delegation-protocol.md"
     errors=$((errors + 1))
   fi
 
