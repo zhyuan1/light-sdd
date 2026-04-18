@@ -75,9 +75,10 @@ If the delegate attempts to transition anyway, intercept and stop. Inform the us
 
 ## Post-check
 
-0. **Provenance stamp**: update the YAML frontmatter in `brainstorm.md`:
-   - `generated_by.framework`: `superpowers` (or the override framework, e.g. `ecc`)
-   - `generated_by.skill`: `brainstorming` (or the override skill, e.g. `think`)
+0. **Provenance stamp**: update the YAML frontmatter in `brainstorm.md` with the
+   framework and skill resolved during Pre-check delegation (step 5):
+   - `generated_by.framework`: the resolved framework (e.g. `superpowers`, `gstack`, `ecc`, or `sdd` for manual)
+   - `generated_by.skill`: the resolved skill (e.g. `brainstorming`, `office-hours`, `think`)
    - `sdd_action`: `sdd-brainstorm`
    - `timestamp`: current ISO 8601 timestamp
 

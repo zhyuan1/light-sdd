@@ -77,8 +77,8 @@ Expect from the delegate:
 ## Post-check
 
 0. **Provenance stamp**: set the YAML frontmatter in the generated review file:
-   - `generated_by.framework`: Phase 1 `sdd` + Phase 2 `superpowers` (or override framework)
-   - `generated_by.skill`: Phase 1 `sdd-review-code` + Phase 2 `requesting-code-review` (or override skill)
+   - `generated_by.framework`: Phase 1 `sdd` + Phase 2 the resolved framework (e.g. `superpowers`, `gstack`, or absent if skipped)
+   - `generated_by.skill`: Phase 1 `sdd-review-code` + Phase 2 the resolved skill (e.g. `requesting-code-review`, `review`)
    - `sdd_action`: `sdd-review-code`
    - `timestamp`: current ISO 8601 timestamp
 

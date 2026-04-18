@@ -1,7 +1,7 @@
 ---
 generated_by:
-  framework: "openspec"
-  skill: "ff-change"
+  framework: "{framework}"
+  skill: "{skill}"
 sdd_action: sdd-ff
 timestamp: "{timestamp}"
 ---

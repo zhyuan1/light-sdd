@@ -78,8 +78,8 @@ Expect from the delegate:
 ## Post-check
 
 0. **Provenance stamp**: set the YAML frontmatter in the generated verification review:
-   - `generated_by.framework`: `openspec` + `superpowers` (or override frameworks)
-   - `generated_by.skill`: `verify-change` + `verification-before-completion` (or override skills)
+   - `generated_by.framework`: the resolved frameworks for each step (e.g. `openspec` + `superpowers`, or `gstack` + `gstack`)
+   - `generated_by.skill`: the resolved skills for each step (e.g. `verify-change` + `verification-before-completion`, or `qa` + `benchmark`)
    - `sdd_action`: `sdd-verify`
    - `timestamp`: current ISO 8601 timestamp
 

@@ -1,7 +1,7 @@
 ---
 generated_by:
-  framework: "openspec"
-  skill: "continue-change"
+  framework: "{framework}"
+  skill: "{skill}"
 sdd_action: sdd-propose
 timestamp: "{timestamp}"
 ---

@@ -81,9 +81,10 @@ If the delegate presents an execution choice anyway, intercept and stop. Inform 
 
 ## Post-check
 
-0. **Provenance stamp**: update the YAML frontmatter in `plan.md`:
-   - `generated_by.framework`: `superpowers` (or the override framework, e.g. `ecc`)
-   - `generated_by.skill`: `writing-plans` (or the override skill, e.g. `plan`)
+0. **Provenance stamp**: update the YAML frontmatter in `plan.md` with the
+   framework and skill resolved during Pre-check delegation:
+   - `generated_by.framework`: the resolved framework (e.g. `superpowers`, `gstack`, `ecc`, or `sdd` for manual)
+   - `generated_by.skill`: the resolved skill (e.g. `writing-plans`, `autoplan`, `plan`)
    - `sdd_action`: `sdd-plan`
    - `timestamp`: current ISO 8601 timestamp
 
