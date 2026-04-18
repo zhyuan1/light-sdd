@@ -32,7 +32,17 @@ Facilitate structured, divergent exploration before committing to an approach. D
    - Read existing project context (README, architecture docs) if available.
    - Read the user's problem description.
 
-5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-brainstorm`,
+5. **KB context loading**:
+   - Read `.sdd/kb.yaml` if it exists.
+   - Filter sources where `scope` includes `sdd-brainstorm`.
+   - For each matched source:
+     - `path` source → read the file directly.
+     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+   - Pass loaded KB content to the delegate as additional context.
+   - If `.sdd/kb.yaml` does not exist: skip silently.
+   - Report: "KB loaded: architecture.md, domain-model.md" (or "No KB sources for this action.")
+
+6. **Delegation**: Resolve delegates per `delegates.yaml → sdd-brainstorm`,
    following `delegation-protocol.md`. Record resolved framework/skill for provenance.
 
 ---

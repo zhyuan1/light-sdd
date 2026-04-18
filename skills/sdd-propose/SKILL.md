@@ -33,7 +33,17 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
    - If `brainstorm.md` exists in the change directory, read it for context.
    - If it does not exist, that is fine -- brainstorming is optional.
 
-5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-propose`,
+5. **KB context loading**:
+   - Read `.sdd/kb.yaml` if it exists.
+   - Filter sources where `scope` includes `sdd-propose`.
+   - For each matched source:
+     - `path` source → read the file directly.
+     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+   - Pass loaded KB content to the delegate as additional context.
+   - If `.sdd/kb.yaml` does not exist: skip silently.
+   - Report: "KB loaded: architecture.md, domain-model.md" (or "No KB sources for this action.")
+
+6. **Delegation**: Resolve delegates per `delegates.yaml → sdd-propose`,
    following `delegation-protocol.md`. Record resolved framework/skill for provenance.
 
 ---

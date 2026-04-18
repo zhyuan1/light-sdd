@@ -58,6 +58,7 @@ SDD_SKILLS=(
   sdd-ship
   sdd-status
   sdd-use
+  sdd-kb
 )
 
 SDD_TEMPLATES=(
@@ -82,6 +83,7 @@ SDD_COMMANDS=(
   sdd-verify.md
   sdd-ship.md
   sdd-use.md
+  sdd-kb.md
 )
 
 do_install() {
@@ -147,6 +149,7 @@ do_install() {
   echo "  /sdd-verify       -- Verify implementation against specs"
   echo "  /sdd-ship         -- Finalize and ship the change"
   echo "  /sdd-use          -- Switch the active delegate profile"
+  echo "  /sdd-kb           -- Manage the project knowledge base registry"
 }
 
 do_check() {

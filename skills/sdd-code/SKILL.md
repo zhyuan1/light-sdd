@@ -34,7 +34,17 @@ Execute implementation tasks following TDD discipline. Delegates to Superpowers'
    - Load the corresponding `specs/<capability>/spec.md` for: Interfaces, Behavior, Acceptance Criteria.
    - This context is provided to the delegate so implementation aligns with the spec.
 
-5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-code`,
+5. **KB context loading**:
+   - Read `.sdd/kb.yaml` if it exists.
+   - Filter sources where `scope` includes `sdd-code`.
+   - For each matched source:
+     - `path` source → read the file directly.
+     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+   - Pass loaded KB content to the delegate as additional context.
+   - If `.sdd/kb.yaml` does not exist: skip silently.
+   - Report: "KB loaded: coding-standards.md, internal-api.md" (or "No KB sources for this action.")
+
+6. **Delegation**: Resolve delegates per `delegates.yaml → sdd-code`,
    following `delegation-protocol.md` (partial availability mode). Record resolved framework/skills for provenance.
 
 ---

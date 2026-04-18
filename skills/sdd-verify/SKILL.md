@@ -36,7 +36,17 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to O
      ```
    - Report total AC count to the user.
 
-4. **Delegation**: Resolve delegates per `delegates.yaml → sdd-verify`,
+4. **KB context loading**:
+   - Read `.sdd/kb.yaml` if it exists.
+   - Filter sources where `scope` includes `sdd-verify`.
+   - For each matched source:
+     - `path` source → read the file directly.
+     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+   - Pass loaded KB content to the delegate as additional context (e.g. security guidelines inform the evidence verification step).
+   - If `.sdd/kb.yaml` does not exist: skip silently.
+   - Report: "KB loaded: auth-patterns.md, test-guidelines.md" (or "No KB sources for this action.")
+
+5. **Delegation**: Resolve delegates per `delegates.yaml → sdd-verify`,
    following `delegation-protocol.md` (multi-phase independent resolution). Record resolved frameworks/skills for provenance.
 
 ---

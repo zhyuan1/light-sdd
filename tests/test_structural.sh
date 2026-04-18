@@ -90,7 +90,7 @@ t1_3() {
   local ok=true
 
   local skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
-                sdd-review-spec sdd-review-code sdd-verify sdd-ship sdd-status sdd-use)
+                sdd-review-spec sdd-review-code sdd-verify sdd-ship sdd-status sdd-use sdd-kb)
 
   for skill in "${skills[@]}"; do
     local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
@@ -157,7 +157,7 @@ t1_5() {
   local ok=true
 
   local commands=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
-                  sdd-review-spec sdd-review-code sdd-verify sdd-ship sdd-status sdd-use)
+                  sdd-review-spec sdd-review-code sdd-verify sdd-ship sdd-status sdd-use sdd-kb)
 
   for cmd in "${commands[@]}"; do
     local cmd_file="$REPO_ROOT/commands/$cmd.md"
@@ -1150,6 +1150,155 @@ t2_10() {
   if $ok; then pass "$label"; fi
 }
 
+# ---------------------------------------------------------------------------
+# T1.16 sdd-kb skill -- structural content checks
+# ---------------------------------------------------------------------------
+t1_16() {
+  local label="T1.16 sdd-kb skill completeness"
+  local skill_file="$REPO_ROOT/skills/sdd-kb/SKILL.md"
+  local ok=true
+
+  if [ ! -f "$skill_file" ]; then
+    fail "$label -- skills/sdd-kb/SKILL.md missing"
+    return
+  fi
+
+  # Must have delegates_to: [] (no external delegation)
+  local fm
+  fm=$(sed -n '/^---$/,/^---$/p' "$skill_file")
+  if ! echo "$fm" | grep -q "delegates_to: \[\]"; then
+    fail "$label -- sdd-kb frontmatter must have 'delegates_to: []'"
+    ok=false
+  fi
+
+  # Must have overridable: false
+  if ! echo "$fm" | grep -q "overridable: false"; then
+    fail "$label -- sdd-kb frontmatter must have 'overridable: false'"
+    ok=false
+  fi
+
+  # All four sub-commands must be documented
+  for subcmd in init add update status; do
+    if ! grep -q "$subcmd" "$skill_file"; then
+      fail "$label -- sdd-kb missing sub-command '$subcmd'"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T2.11 kb.yaml schema documentation in sdd-kb SKILL.md
+# ---------------------------------------------------------------------------
+t2_11() {
+  local label="T2.11 kb.yaml schema documentation"
+  local skill_file="$REPO_ROOT/skills/sdd-kb/SKILL.md"
+  local ok=true
+
+  if [ ! -f "$skill_file" ]; then
+    fail "$label -- skills/sdd-kb/SKILL.md missing"
+    return
+  fi
+
+  # Must document the 'sources:' key
+  if ! grep -q "sources:" "$skill_file"; then
+    fail "$label -- sdd-kb missing 'sources:' key documentation"
+    ok=false
+  fi
+
+  # Must document the 'scope' field
+  if ! grep -q "scope" "$skill_file"; then
+    fail "$label -- sdd-kb missing 'scope' field documentation"
+    ok=false
+  fi
+
+  # Must document that scope is required (not optional)
+  if ! grep -qi "required\|mandatory\|must" "$skill_file"; then
+    fail "$label -- sdd-kb missing indication that scope is required"
+    ok=false
+  fi
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T2.12 URL cache mechanics in sdd-kb SKILL.md
+# ---------------------------------------------------------------------------
+t2_12() {
+  local label="T2.12 URL cache mechanics"
+  local skill_file="$REPO_ROOT/skills/sdd-kb/SKILL.md"
+  local ok=true
+
+  if [ ! -f "$skill_file" ]; then
+    fail "$label -- skills/sdd-kb/SKILL.md missing"
+    return
+  fi
+
+  # Must reference kb-cache directory
+  if ! grep -q "kb-cache" "$skill_file"; then
+    fail "$label -- sdd-kb missing '.sdd/kb-cache' directory reference"
+    ok=false
+  fi
+
+  # Must document fetched_at field
+  if ! grep -q "fetched_at" "$skill_file"; then
+    fail "$label -- sdd-kb missing 'fetched_at' field documentation"
+    ok=false
+  fi
+
+  # Must document stale_after field
+  if ! grep -q "stale_after" "$skill_file"; then
+    fail "$label -- sdd-kb missing 'stale_after' field documentation"
+    ok=false
+  fi
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T2.13 KB context loading step present in all 8 delegating skills
+# ---------------------------------------------------------------------------
+t2_13() {
+  local label="T2.13 KB context loading in all delegating skills"
+  local ok=true
+
+  local skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                sdd-review-spec sdd-review-code sdd-verify)
+
+  for skill in "${skills[@]}"; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+
+    if [ ! -f "$skill_file" ]; then
+      fail "$label -- $skill/SKILL.md missing"
+      ok=false
+      continue
+    fi
+
+    # Pre-check section must reference kb.yaml
+    local precheck
+    precheck=$(sed -n '/^## Pre-check/,/^## /p' "$skill_file")
+    if ! echo "$precheck" | grep -q "kb\.yaml"; then
+      fail "$label -- $skill Pre-check missing 'kb.yaml' reference"
+      ok=false
+    fi
+
+    # Pre-check must describe scope filtering
+    if ! echo "$precheck" | grep -qi "scope"; then
+      fail "$label -- $skill Pre-check missing 'scope' filter for KB loading"
+      ok=false
+    fi
+
+    # Pre-check must mention kb-cache for URL sources
+    if ! echo "$precheck" | grep -q "kb-cache"; then
+      fail "$label -- $skill Pre-check missing 'kb-cache' reference for URL sources"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
 run_structural() {
   echo "=== Structural Tests ==="
   t1_1
@@ -1167,6 +1316,7 @@ run_structural() {
   t1_13
   t1_14
   t1_15
+  t1_16
   echo ""
   echo "=== Configuration Tests ==="
   t2_1
@@ -1179,6 +1329,9 @@ run_structural() {
   t2_8
   t2_9
   t2_10
+  t2_11
+  t2_12
+  t2_13
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }
