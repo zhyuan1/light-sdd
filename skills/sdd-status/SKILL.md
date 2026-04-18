@@ -29,6 +29,22 @@ Report the current state of an SDD change by scanning its artifact directory. Pu
 
 This action has no external delegation. Execute the following scan:
 
+### 0. Active profile
+
+Read `.sdd/config.yaml` in the project root:
+- If the file exists and contains `active_profile: <name>`, report that profile name.
+- Otherwise report `default`.
+
+Include one line in the status output:
+```
+Profile: gstack   (or "default" when no profile is set)
+```
+
+If the active profile is not `default`, add a one-line summary of the primary framework it uses:
+```
+Profile: gstack  [routes most actions through gstack skills]
+```
+
 ### 1. Artifact presence check
 
 Walk the dependency chain and report each artifact:
@@ -96,6 +112,7 @@ Example output format:
 
 ```
 Change: user-auth
+Profile: gstack  [routes most actions through gstack skills]
 Phase:  coding (Batch 2)
 
 Artifacts:

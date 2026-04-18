@@ -175,3 +175,178 @@ sdd-ship:
         Superpowers `finishing-a-development-branch` not found.
         SDD will present git options (merge/PR/preserve/discard)
         and execute directly.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Profiles -- named override sets for alternative framework stacks.
+#
+# Each profile entry for an action REPLACES that action's primary/fallback/
+# manual_message/transition_suppression keys. Actions absent from a profile
+# inherit base (default) values unchanged.
+#
+# Active profile is stored in .sdd/config.yaml → active_profile.
+# Switch profiles with /sdd-use <profile>. Default: no overrides.
+#
+# Design principle: a profile's fallback chain stays within that framework.
+# When the user chooses a profile (e.g. /sdd-use gstack), cross-framework
+# fallbacks (to superpowers/openspec/ecc) are intentionally absent -- if the
+# chosen skill is not installed, SDD falls through to manual mode directly.
+# Exception: sdd-ship sync/archive keep openspec because gstack has no
+# spec-sync or archive equivalent (these are not fallbacks -- they are the
+# correct primary tools for those phases regardless of profile).
+# ─────────────────────────────────────────────────────────────────────────────
+
+profiles:
+
+  gstack:
+
+    sdd-brainstorm:
+      primary:
+        - framework: gstack
+          skill: office-hours
+      manual_message: >-
+        gstack `office-hours` not found.
+        Proceeding in manual mode -- SDD will guide you through
+        the brainstorm template directly.
+      transition_suppression:
+        - delegate_skill: office-hours
+          suppress:
+            - plan-ceo-review
+            - autoplan
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke `plan-ceo-review`, `autoplan`, or any other skill
+            after office-hours completes. Your scope is limited to producing `brainstorm.md`.
+            Return control to SDD when the brainstorm document is finalized.
+            SDD controls the workflow -- the next step is `/sdd-propose`, not a gstack planning skill.
+
+    sdd-propose:
+      primary:
+        - framework: gstack
+          skill: plan-ceo-review
+      manual_message: >-
+        gstack `plan-ceo-review` not found.
+        Proceeding in manual mode -- SDD will guide you through
+        the proposal template directly.
+
+    sdd-ff:
+      primary:
+        - framework: gstack
+          skill: plan-design-review
+      manual_message: >-
+        gstack `plan-design-review` not found.
+        Proceeding in manual mode -- SDD will generate artifacts
+        using templates and spec context directly.
+
+    sdd-plan:
+      primary:
+        - framework: gstack
+          skill: autoplan
+      manual_message: >-
+        gstack `autoplan` not found.
+        Proceeding in manual mode -- SDD will generate the plan
+        using spec context and task list directly.
+      transition_suppression:
+        - delegate_skill: autoplan
+          suppress:
+            - ship
+            - review
+            - qa
+            - land-and-deploy
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke `ship`, `review`, `qa`, `land-and-deploy`,
+            or any other skill after autoplan completes. Do NOT present an execution handoff.
+            Your scope is limited to producing `plan.md`. Return control to SDD when
+            the plan document is finalized. SDD controls the workflow -- the next step
+            is `/sdd-code`, not a gstack execution skill.
+
+    sdd-code:
+      primary:
+        - framework: gstack
+          skill: design-html
+        - framework: gstack
+          skill: qa
+      manual_message: >-
+        gstack execution skills (`design-html`, `qa`) not found.
+        Proceeding with direct TDD coding -- SDD will enforce
+        RED-GREEN-REFACTOR cycle directly.
+      partial_availability: true
+      transition_suppression:
+        - delegate_skill: design-html
+          suppress:
+            - ship
+            - land-and-deploy
+            - canary
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke `ship`, `land-and-deploy`, `canary`, or any
+            deployment skill after design-html completes. Your scope is limited to
+            producing production-ready code for the current task batch. Return control
+            to SDD when the batch is done. SDD controls workspace management and
+            deployment -- these are handled by `/sdd-ship`.
+
+    sdd-review-spec:
+      primary:
+        - framework: gstack
+          skill: plan-design-review
+      manual_message: >-
+        gstack `plan-design-review` not found.
+        SDD will review specs directly against schema.yaml requirements.
+
+    sdd-review-code:
+      phases:
+        phase1:
+          description: Spec compliance review (SDD self-logic)
+          delegate: self
+        phase2:
+          primary:
+            - framework: gstack
+              skill: review
+            - framework: gstack
+              skill: cso
+          manual_message: >-
+            gstack review skills (`review`, `cso`) not found.
+            Phase 1 (spec compliance) will run.
+            Phase 2 (code quality) skipped -- consider manual code review.
+
+    sdd-verify:
+      phases:
+        step1:
+          primary:
+            - framework: gstack
+              skill: qa
+        step2:
+          primary:
+            - framework: gstack
+              skill: benchmark
+      manual_message: >-
+        gstack verification skills (`qa`, `benchmark`) not found.
+        SDD will verify acceptance criteria against test results
+        and implementation directly.
+      partial_availability: true
+
+    sdd-ship:
+      # sync and archive: openspec is the correct primary tool regardless of profile --
+      # gstack has no spec-sync or archive equivalent.
+      phases:
+        sync:
+          primary:
+            - framework: openspec
+              skill: sync-specs
+          inline_fallback: >-
+            SDD performs a direct file copy from `.sdd/changes/<name>/specs/`
+            to the project spec location.
+        archive:
+          primary:
+            - framework: openspec
+              skill: archive-change
+          inline_fallback: >-
+            SDD performs a direct directory move to `.sdd/changes/archive/`.
+        finish:
+          primary:
+            - framework: gstack
+              skill: ship
+          fallback:
+            - framework: gstack
+              skill: land-and-deploy
+          manual_message: >-
+            gstack ship skills (`ship`, `land-and-deploy`) not found.
+            SDD will present git options (merge/PR/preserve/discard)
+            and execute directly.

@@ -8,6 +8,29 @@ SDD skills delegate core work to external framework skills (Superpowers, OpenSpe
 
 ---
 
+## 0. Profile Resolution
+
+Before resolving any delegate skill, determine the active profile:
+
+1. Look for `.sdd/config.yaml` in the project root.
+   - If the file exists and contains `active_profile: <name>`, the active profile is `<name>`.
+   - Otherwise, the active profile is `default`.
+
+2. If the active profile is `default`, or the `profiles:` key is absent from `delegates.yaml`, there are no overrides — proceed directly to Section 1 with the base configuration.
+
+3. Load the profile's override map from `delegates.yaml → profiles.<profile_name>`.
+
+4. **Merge**: for each SDD action listed in the profile, replace that action's entire base block — `primary`, `fallback`, `manual_message`, `transition_suppression`, and `partial_availability` — with the profile's values.
+   - Actions **not** listed in the profile keep their base values unchanged.
+   - Merge is at the **action level** (replaces whole blocks), not the key level (does not patch individual keys within a block).
+
+5. Proceed to Section 1 (Search Path Resolution) using the merged configuration.
+
+> **Switching profiles**: run `/sdd-use <profile>` to write `.sdd/config.yaml`.
+> Run `/sdd-use` (no argument) to list available profiles and the current active one.
+
+---
+
 ## 1. Search Path Resolution
 
 When searching for a delegate skill, check these locations in order:

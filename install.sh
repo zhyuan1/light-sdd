@@ -57,6 +57,7 @@ SDD_SKILLS=(
   sdd-verify
   sdd-ship
   sdd-status
+  sdd-use
 )
 
 SDD_TEMPLATES=(
@@ -80,6 +81,7 @@ SDD_COMMANDS=(
   sdd-review-code.md
   sdd-verify.md
   sdd-ship.md
+  sdd-use.md
 )
 
 do_install() {
@@ -144,6 +146,7 @@ do_install() {
   echo "  /sdd-review-code  -- Two-phase code review"
   echo "  /sdd-verify       -- Verify implementation against specs"
   echo "  /sdd-ship         -- Finalize and ship the change"
+  echo "  /sdd-use          -- Switch the active delegate profile"
 }
 
 do_check() {
