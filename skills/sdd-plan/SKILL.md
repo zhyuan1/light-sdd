@@ -38,14 +38,15 @@ Create a detailed, actionable execution plan for the next batch of tasks. Delega
    - If `plan.md` exists from a previous batch, it will be overwritten for the new batch.
 
 6. **KB context loading**:
-   - Read `.sdd/kb.yaml` if it exists.
-   - Filter sources where `scope` includes `sdd-plan`.
-   - For each matched source:
+   - Load global KB: read `~/.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-plan`.
+   - Load project KB: read `.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-plan`.
+   - Merge: concatenate global + project sources. Deduplicate by `path`/`url` (project entry wins if identical).
+   - For each merged source:
      - `path` source → read the file directly.
-     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+     - `url` source → global sources read from `~/.sdd/kb-cache/<id>.md`; project sources read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
    - Pass loaded KB content to the delegate as additional context.
-   - If `.sdd/kb.yaml` does not exist: skip silently.
-   - Report: "KB loaded: roadmap.md" (or "No KB sources for this action.")
+   - If neither kb.yaml exists: skip silently.
+   - Report: "KB loaded: roadmap.md [global]" (or "No KB sources for this action.")
 
 7. **Delegation**: Resolve delegates per `delegates.yaml → sdd-plan`,
    following `delegation-protocol.md`. Record resolved framework/skill for provenance.

@@ -10,33 +10,42 @@ metadata:
 
 # sdd-kb
 
-Manage the knowledge base registry (`.sdd/kb.yaml`) that injects project-specific
+Manage the knowledge base registry that injects project-specific or organisation-wide
 context — architecture docs, coding standards, domain models, security guidelines —
 into SDD skills at the right workflow stage.
 
+Two registry layers:
+- **Global** (`~/.sdd/kb.yaml`): set once, applies to every project.
+- **Project** (`.sdd/kb.yaml`): per-project overrides and additions.
+
 Usage:
 ```
-/sdd-kb init                -- create empty kb.yaml scaffold
-/sdd-kb add <path-or-url>   -- register a local file, local directory, or URL
-/sdd-kb update [id]         -- re-fetch and refresh cached URL sources
-/sdd-kb status              -- show which sources each action will load
+/sdd-kb init [--global]            -- create empty kb.yaml scaffold
+/sdd-kb add [--global] <path-or-url>  -- register a local file, directory, or URL
+/sdd-kb update [--global] [id]     -- re-fetch and refresh cached URL sources
+/sdd-kb status [--global|--all]    -- show which sources each action will load
 ```
 
 ---
 
 ## Pre-check
 
-1. **Parse sub-command**: extract the first word of `$ARGUMENTS` as the sub-command.
-   Valid values: `init`, `add`, `update`, `status`.
-   - If missing or unrecognised, display the usage block above and stop.
+1. **Parse sub-command and flags**: extract the first word of `$ARGUMENTS` as the sub-command, and check for `--global` flag anywhere in the remaining arguments.
+   Valid sub-commands: `init`, `add`, `update`, `status`.
+   - If sub-command is missing or unrecognised, display the usage block above and stop.
 
-2. **Locate project root**: find the directory containing `.sdd/`. If not found, report:
+2. **Resolve target registry**:
+   - With `--global`: target is `~/.sdd/kb.yaml`; cache dir is `~/.sdd/kb-cache/`.
+   - Without `--global`: target is `.sdd/kb.yaml`; cache dir is `.sdd/kb-cache/`.
+   - For `status --all`: load both registries.
+
+3. **Locate project root** (only for project-level operations, i.e. without `--global`): find the directory containing `.sdd/`. If not found, report:
    > No `.sdd/` directory found. Run `/sdd-propose` first to initialise an SDD change, then `/sdd-kb init`.
    And stop.
 
-3. **For `add` and `update`**: verify `.sdd/kb.yaml` exists.
-   - If missing for `add`: auto-run the `init` flow first, then continue with `add`.
-   - If missing for `update`: report "No kb.yaml found. Run `/sdd-kb init` first." and stop.
+4. **For `add` and `update`**: verify the target `kb.yaml` exists.
+   - If missing for `add`: auto-run the `init` flow first (at the same level), then continue with `add`.
+   - If missing for `update`: report "No kb.yaml found. Run `/sdd-kb init [--global]` first." and stop.
 
 ---
 
@@ -46,16 +55,15 @@ Usage:
 
 ### Sub-command: `init`
 
-**Purpose**: create an empty `kb.yaml` scaffold so the engineer knows the file
-location and available scope values.
+**Purpose**: create an empty `kb.yaml` scaffold at the target level (global or project).
 
 **Step 1 — Existence check**:
-- If `.sdd/kb.yaml` already exists, display:
-  > `kb.yaml` already exists. Use `/sdd-kb add` to register sources, or edit it directly.
+- If the target `kb.yaml` already exists, display:
+  > `kb.yaml` already exists at `<target-path>`. Use `/sdd-kb add [--global]` to register sources, or edit it directly.
 - Stop without overwriting.
 
 **Step 2 — Write scaffold**:
-Create `.sdd/kb.yaml` with:
+Create the target `kb.yaml` (either `~/.sdd/kb.yaml` for `--global` or `.sdd/kb.yaml` for project) with:
 
 ```yaml
 # .sdd/kb.yaml -- Knowledge base registry for SDD context injection
@@ -76,8 +84,8 @@ sources: []
 ```
 
 **Step 3 — Confirm**:
-> `kb.yaml` created at `.sdd/kb.yaml`.
-> Next: run `/sdd-kb add <path-or-url>` to register your first knowledge source.
+> `kb.yaml` created at `<target-path>`.
+> Next: run `/sdd-kb add [--global] <path-or-url>` to register your first knowledge source.
 
 ---
 
@@ -86,7 +94,7 @@ sources: []
 **Purpose**: register one or more knowledge sources (file, directory, or URL),
 infer scope automatically, let the engineer confirm before writing.
 
-**Input**: the path or URL following `add` in `$ARGUMENTS`.
+**Input**: the path or URL following `add [--global]` in `$ARGUMENTS`. The `--global` flag writes to `~/.sdd/kb.yaml`; omitting it writes to `.sdd/kb.yaml`.
 
 #### Step 1 — Classify input
 
@@ -172,16 +180,15 @@ For **URL** sources:
 ```yaml
   - id: domain-guidelines
     url: https://company.com/domain-guidelines.md
-    cache: .sdd/kb-cache/domain-guidelines.md
+    cache: <cache-dir>/domain-guidelines.md
     fetched_at: <ISO-8601-timestamp>
     stale_after: 7d
     scope: [sdd-brainstorm, sdd-propose]
 ```
 
-- For URL sources: create `.sdd/kb-cache/` if it does not exist, write fetched
-  content to `kb-cache/<id>.md`.
+- For URL sources: create the cache dir (`~/.sdd/kb-cache/` for global, `.sdd/kb-cache/` for project) if it does not exist, write fetched content to `<cache-dir>/<id>.md`.
 - Do not overwrite existing entries with the same `id`. If a conflict is found:
-  > Source `<id>` already exists. Use `/sdd-kb update <id>` to refresh it, or edit `kb.yaml` directly.
+  > Source `<id>` already exists. Use `/sdd-kb update [--global] <id>` to refresh it, or edit `kb.yaml` directly.
 
 **Step 6 — Confirm**:
 Report each written entry:
@@ -193,11 +200,12 @@ Report each written entry:
 
 **Purpose**: re-fetch URL sources and refresh the local cache.
 
-**Input** (optional): a source `id`. If omitted, update all URL sources.
+**Input** (optional): a source `id`. If omitted, update all URL sources in the target registry.
+The `--global` flag targets `~/.sdd/kb.yaml`; omitting it targets `.sdd/kb.yaml`.
 
-**Step 1 — Load `kb.yaml`**: parse all entries that have a `url` field.
+**Step 1 — Load target `kb.yaml`**: parse all entries that have a `url` field.
 If `id` is provided, filter to that entry. If not found, report:
-> Source `<id>` not found in `kb.yaml`. Run `/sdd-kb status` to list sources.
+> Source `<id>` not found in `kb.yaml`. Run `/sdd-kb status [--global]` to list sources.
 
 **Step 2 — Re-fetch each matched source**:
 - Fetch the URL content (same collection logic as `add` Step 2).
@@ -217,7 +225,12 @@ Continue with remaining sources without stopping.
 **Purpose**: show exactly which knowledge sources each SDD action will load,
 and flag any issues.
 
-**Step 1 — Load `kb.yaml`**: parse all source entries.
+**Flags**:
+- No flag → show project KB only (`.sdd/kb.yaml`).
+- `--global` → show global KB only (`~/.sdd/kb.yaml`).
+- `--all` → show both layers merged, with `[global]` / `[project]` labels; deduplicated by `path`/`url` (project wins).
+
+**Step 1 — Load target registry/registries**: parse all source entries from the selected layer(s).
 
 **Step 2 — For each source, check health**:
 
@@ -232,35 +245,35 @@ and flag any issues.
 **Step 3 — Display action → source mapping**:
 
 ```
-KB Status
+KB Status  (--all: global + project)
 
   sdd-brainstorm
-    architecture.md          ok
-    domain-model.md          ok
+    architecture.md          ok            [global]
+    domain-model.md          ok            [project]
 
   sdd-propose
-    architecture.md          ok
-    domain-model.md          ok
+    architecture.md          ok            [global]
+    domain-model.md          ok            [project]
 
   sdd-ff
-    architecture.md          ok
-    coding-standards.md      ok
-    domain-model.md          ok
+    architecture.md          ok            [global]
+    coding-standards.md      ok            [global]
+    domain-model.md          ok            [project]
 
   sdd-code
-    coding-standards.md      ok
-    internal-api             stale (8 days old) -- run /sdd-kb update internal-api
+    coding-standards.md      ok            [global]
+    internal-api             stale (8 days old) [project] -- run /sdd-kb update internal-api
 
   sdd-review-code
-    coding-standards.md      ok
-    auth-patterns.md         ok
-    internal-api             stale (8 days old)
+    coding-standards.md      ok            [global]
+    auth-patterns.md         ok            [project]
+    internal-api             stale (8 days old) [project]
 
   sdd-review-spec
-    architecture.md          ok
+    architecture.md          ok            [global]
 
   sdd-verify
-    auth-patterns.md         ok
+    auth-patterns.md         ok            [project]
 
   sdd-plan, sdd-ship         (no KB sources registered)
 ```
@@ -284,7 +297,7 @@ If any source is `not found`:
 2. **No delegation**: all logic is SDD self-logic. No external skill is invoked.
 
 3. **Next-step guidance** (sub-command dependent):
-   - After `init`: "Run `/sdd-kb add <path-or-url>` to register your first source."
-   - After `add`: "Run `/sdd-kb status` to verify all sources are reachable."
-   - After `update`: "Run `/sdd-kb status` to confirm all caches are current."
+   - After `init`: "Run `/sdd-kb add [--global] <path-or-url>` to register your first source."
+   - After `add`: "Run `/sdd-kb status [--all]` to verify all sources are reachable."
+   - After `update`: "Run `/sdd-kb status [--all]` to confirm all caches are current."
    - After `status`: if all ok — "KB is ready. SDD will inject context automatically during skill Pre-checks."

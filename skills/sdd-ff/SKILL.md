@@ -39,14 +39,15 @@ Fast-forward through the artifact dependency chain by batch-generating all missi
    Wait for confirmation before proceeding.
 
 5. **KB context loading**:
-   - Read `.sdd/kb.yaml` if it exists.
-   - Filter sources where `scope` includes `sdd-ff`.
-   - For each matched source:
+   - Load global KB: read `~/.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-ff`.
+   - Load project KB: read `.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-ff`.
+   - Merge: concatenate global + project sources. Deduplicate by `path`/`url` (project entry wins if identical).
+   - For each merged source:
      - `path` source → read the file directly.
-     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+     - `url` source → global sources read from `~/.sdd/kb-cache/<id>.md`; project sources read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
    - Pass loaded KB content to the delegate as additional context.
-   - If `.sdd/kb.yaml` does not exist: skip silently.
-   - Report: "KB loaded: architecture.md, coding-standards.md" (or "No KB sources for this action.")
+   - If neither kb.yaml exists: skip silently.
+   - Report: "KB loaded: architecture.md [global], coding-standards.md [project]" (or "No KB sources for this action.")
 
 6. **Delegation**: Resolve delegates per `delegates.yaml → sdd-ff`,
    following `delegation-protocol.md`. Record resolved framework/skill for provenance.

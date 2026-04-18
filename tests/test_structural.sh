@@ -1235,9 +1235,15 @@ t2_12() {
     return
   fi
 
-  # Must reference kb-cache directory
+  # Must reference kb-cache directory (project level)
   if ! grep -q "kb-cache" "$skill_file"; then
-    fail "$label -- sdd-kb missing '.sdd/kb-cache' directory reference"
+    fail "$label -- sdd-kb missing 'kb-cache' directory reference"
+    ok=false
+  fi
+
+  # Must reference global cache directory ~/.sdd/kb-cache
+  if ! grep -q "~/\.sdd/kb-cache\|~/.sdd/kb-cache" "$skill_file"; then
+    fail "$label -- sdd-kb missing global '~/.sdd/kb-cache' directory reference"
     ok=false
   fi
 
@@ -1252,6 +1258,52 @@ t2_12() {
     fail "$label -- sdd-kb missing 'stale_after' field documentation"
     ok=false
   fi
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T2.14 Global/project two-layer KB support
+# ---------------------------------------------------------------------------
+t2_14() {
+  local label="T2.14 Global/project two-layer KB support"
+  local ok=true
+
+  # sdd-kb SKILL.md must document --global flag
+  local skill_file="$REPO_ROOT/skills/sdd-kb/SKILL.md"
+  if ! grep -q "\-\-global" "$skill_file"; then
+    fail "$label -- sdd-kb missing '--global' flag documentation"
+    ok=false
+  fi
+
+  # sdd-kb must reference both global (~/.sdd/kb.yaml) and project (.sdd/kb.yaml)
+  if ! grep -q "~/\.sdd/kb\.yaml\|~/.sdd/kb.yaml" "$skill_file"; then
+    fail "$label -- sdd-kb missing global '~/.sdd/kb.yaml' reference"
+    ok=false
+  fi
+
+  # status must document --all flag
+  if ! grep -q "\-\-all" "$skill_file"; then
+    fail "$label -- sdd-kb status missing '--all' flag documentation"
+    ok=false
+  fi
+
+  # All 8 delegating skills must reference both global and project kb.yaml
+  local skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                sdd-review-spec sdd-review-code sdd-verify)
+  for skill in "${skills[@]}"; do
+    local sf="$REPO_ROOT/skills/$skill/SKILL.md"
+    # Must reference global kb (~/.sdd/kb.yaml)
+    if ! grep -q "~/\.sdd/kb\.yaml\|~/.sdd/kb.yaml" "$sf"; then
+      fail "$label -- $skill missing global '~/.sdd/kb.yaml' reference in KB loading step"
+      ok=false
+    fi
+    # Must describe deduplication logic
+    if ! grep -qi "dedup\|deduplicate\|project entry wins\|path.*url" "$sf"; then
+      fail "$label -- $skill missing deduplication logic in KB loading step"
+      ok=false
+    fi
+  done
 
   if $ok; then pass "$label"; fi
 }
@@ -1332,6 +1384,7 @@ run_structural() {
   t2_11
   t2_12
   t2_13
+  t2_14
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }

@@ -28,14 +28,15 @@ Review specifications for quality before implementation begins. This is pure SDD
 4. **Load proposal**: read `proposal.md` for cross-referencing capability list.
 
 5. **KB context loading**:
-   - Read `.sdd/kb.yaml` if it exists.
-   - Filter sources where `scope` includes `sdd-review-spec`.
-   - For each matched source:
+   - Load global KB: read `~/.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-review-spec`.
+   - Load project KB: read `.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-review-spec`.
+   - Merge: concatenate global + project sources. Deduplicate by `path`/`url` (project entry wins if identical).
+   - For each merged source:
      - `path` source → read the file directly.
-     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+     - `url` source → global sources read from `~/.sdd/kb-cache/<id>.md`; project sources read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
    - Pass loaded KB content to the spec-reviewer subagent as additional context (e.g. architecture docs inform cross-spec consistency checks).
-   - If `.sdd/kb.yaml` does not exist: skip silently.
-   - Report: "KB loaded: architecture.md" (or "No KB sources for this action.")
+   - If neither kb.yaml exists: skip silently.
+   - Report: "KB loaded: architecture.md [global]" (or "No KB sources for this action.")
 
 ---
 

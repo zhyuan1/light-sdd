@@ -35,14 +35,15 @@ Execute implementation tasks following TDD discipline. Delegates to Superpowers'
    - This context is provided to the delegate so implementation aligns with the spec.
 
 5. **KB context loading**:
-   - Read `.sdd/kb.yaml` if it exists.
-   - Filter sources where `scope` includes `sdd-code`.
-   - For each matched source:
+   - Load global KB: read `~/.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-code`.
+   - Load project KB: read `.sdd/kb.yaml` if it exists; filter sources where `scope` includes `sdd-code`.
+   - Merge: concatenate global + project sources. Deduplicate by `path`/`url` (project entry wins if identical).
+   - For each merged source:
      - `path` source → read the file directly.
-     - `url` source → read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
+     - `url` source → global sources read from `~/.sdd/kb-cache/<id>.md`; project sources read from `.sdd/kb-cache/<id>.md`; if cache missing, warn and skip; if `fetched_at` is older than `stale_after`, warn but continue.
    - Pass loaded KB content to the delegate as additional context.
-   - If `.sdd/kb.yaml` does not exist: skip silently.
-   - Report: "KB loaded: coding-standards.md, internal-api.md" (or "No KB sources for this action.")
+   - If neither kb.yaml exists: skip silently.
+   - Report: "KB loaded: coding-standards.md [global], internal-api.md [project]" (or "No KB sources for this action.")
 
 6. **Delegation**: Resolve delegates per `delegates.yaml → sdd-code`,
    following `delegation-protocol.md` (partial availability mode). Record resolved framework/skills for provenance.
