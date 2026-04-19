@@ -4,7 +4,7 @@ Shared algorithm for resolving skill delegates in SDD. All delegating SDD skills
 
 ## Overview
 
-SDD skills delegate core work to external framework skills (Superpowers, OpenSpec, ECC). This protocol defines how to find, select, and fall back between delegates, using `delegates.yaml` as the single source of truth.
+SDD skills delegate core work to external framework skills (Superpowers, OpenSpec, ECC, gstack, ai_native_kit). This protocol defines how to find, select, and fall back between delegates, using `delegates.yaml` as the single source of truth.
 
 ---
 

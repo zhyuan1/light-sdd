@@ -541,6 +541,12 @@ t1_15() {
     ok=false
   fi
 
+  # profiles.ai_native_kit must exist
+  if ! grep -q "^  ai_native_kit:" "$delegates"; then
+    fail "$label -- delegates.yaml missing 'profiles.ai_native_kit' entry"
+    ok=false
+  fi
+
   # gstack profile must cover key actions
   for action in sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code sdd-verify sdd-ship; do
     if ! awk '/^  gstack:/{found=1} found && /'"$action"':/{print 1; exit}' "$delegates" | grep -q 1; then
@@ -1351,6 +1357,169 @@ t2_13() {
   if $ok; then pass "$label"; fi
 }
 
+# ---------------------------------------------------------------------------
+# T2.15 ai_native_kit profile -- completeness and invariants
+# ---------------------------------------------------------------------------
+t2_15() {
+  local label="T2.15 ai_native_kit profile completeness"
+  local delegates="$REPO_ROOT/delegates.yaml"
+  local ok=true
+
+  # Must have profiles.ai_native_kit section
+  if ! grep -q "^  ai_native_kit:" "$delegates"; then
+    fail "$label -- delegates.yaml missing 'profiles.ai_native_kit'"
+    return
+  fi
+
+  # ai_native_kit must override exactly these 9 actions
+  local ank_actions=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                     sdd-review-spec sdd-review-code sdd-verify sdd-ship)
+
+  for action in "${ank_actions[@]}"; do
+    local found
+    found=$(awk "/^  ai_native_kit:/{in_ank=1} in_ank && /^    ${action}:/{print 1; exit}" "$delegates")
+    if [ -z "$found" ]; then
+      fail "$label -- ai_native_kit profile missing override for '$action'"
+      ok=false
+    fi
+  done
+
+  # ai_native_kit profile must have primary for each single-delegate action
+  local ank_single=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-review-spec)
+  for action in "${ank_single[@]}"; do
+    local has_primary
+    has_primary=$(awk "/^  ai_native_kit:/{in_ank=1} in_ank && /^    ${action}:/{in_act=1} in_act && /^      primary:/{print 1; exit}" "$delegates")
+    if [ -z "$has_primary" ]; then
+      fail "$label -- ai_native_kit.$action missing 'primary'"
+      ok=false
+    fi
+  done
+
+  # ai_native_kit sdd-code must have partial_availability: true
+  local ank_code_partial
+  ank_code_partial=$(awk "/^  ai_native_kit:/{in_ank=1} in_ank && /^    sdd-code:/{in_act=1} in_act && /partial_availability: true/{print 1; exit}" "$delegates")
+  if [ -z "$ank_code_partial" ]; then
+    fail "$label -- ai_native_kit.sdd-code missing 'partial_availability: true'"
+    ok=false
+  fi
+
+  # ai_native_kit sdd-verify must have partial_availability: true
+  local ank_verify_partial
+  ank_verify_partial=$(awk "/^  ai_native_kit:/{in_ank=1} in_ank && /^    sdd-verify:/{in_act=1} in_act && /partial_availability: true/{print 1; exit}" "$delegates")
+  if [ -z "$ank_verify_partial" ]; then
+    fail "$label -- ai_native_kit.sdd-verify missing 'partial_availability: true'"
+    ok=false
+  fi
+
+  # ai_native_kit sdd-ship: sync and archive must still use openspec
+  for phase in sync archive; do
+    local phase_framework
+    phase_framework=$(python3 -c "
+import sys, re
+content = open('$delegates').read()
+m = re.search(r'profiles:.*?ai_native_kit:.*?sdd-ship:(.*?)(?=\n    [a-z]|\nprofiles|\Z)', content, re.DOTALL)
+if not m:
+    sys.exit(0)
+ship_block = m.group(1)
+pm = re.search(r'${phase}:.*?framework: (\S+)', ship_block, re.DOTALL)
+if pm:
+    print(pm.group(1).strip())
+" 2>/dev/null || echo "")
+    if [ "$phase_framework" != "openspec" ]; then
+      fail "$label -- ai_native_kit.sdd-ship.$phase should use openspec, got '$phase_framework'"
+      ok=false
+    fi
+  done
+
+  # ai_native_kit sdd-ship finish must use ai_native_kit framework
+  local finish_framework
+  finish_framework=$(python3 -c "
+import sys, re
+content = open('$delegates').read()
+m = re.search(r'profiles:.*?ai_native_kit:.*?sdd-ship:(.*?)(?=\n    [a-z]|\nprofiles|\Z)', content, re.DOTALL)
+if not m:
+    sys.exit(0)
+ship_block = m.group(1)
+# Match 'finish:' at YAML key indent (8 spaces), not in comments
+pm = re.search(r'\n        finish:.*?framework: (\S+)', ship_block, re.DOTALL)
+if pm:
+    print(pm.group(1).strip())
+" 2>/dev/null || echo "")
+  if [ "$finish_framework" != "ai_native_kit" ]; then
+    fail "$label -- ai_native_kit.sdd-ship.finish must use 'ai_native_kit', got '$finish_framework'"
+    ok=false
+  fi
+
+  # ai_native_kit sdd-brainstorm must use ecc (no direct counterpart in ai_native_kit)
+  local brainstorm_framework
+  brainstorm_framework=$(awk "
+    /^  ai_native_kit:/{in_ank=1}
+    in_ank && /^    sdd-brainstorm:/{in_act=1}
+    in_act && /framework:/{gsub(/.*framework: /, \"\"); gsub(/ *$/, \"\"); print; exit}
+  " "$delegates")
+  if [ "$brainstorm_framework" != "ecc" ]; then
+    fail "$label -- ai_native_kit.sdd-brainstorm should use ecc, got '$brainstorm_framework'"
+    ok=false
+  fi
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T2.16 ai_native_kit profile -- transition_suppression coverage
+# ---------------------------------------------------------------------------
+t2_16() {
+  local label="T2.16 ai_native_kit transition_suppression coverage"
+  local delegates="$REPO_ROOT/delegates.yaml"
+  local ok=true
+
+  # ai_native_kit profile must have transition_suppression for brainstorm, plan, code
+  local ank_suppressed=(sdd-brainstorm sdd-plan sdd-code)
+
+  for action in "${ank_suppressed[@]}"; do
+    local has_ts
+    has_ts=$(awk "
+      /^  ai_native_kit:/{in_ank=1}
+      in_ank && /^    ${action}:/{in_act=1}
+      in_act && /transition_suppression:/{print 1; exit}
+    " "$delegates")
+    if [ -z "$has_ts" ]; then
+      fail "$label -- ai_native_kit.$action missing 'transition_suppression'"
+      ok=false
+    fi
+  done
+
+  # ai_native_kit sdd-brainstorm override_text must contain 'SDD OVERRIDE'
+  local has_override_text
+  has_override_text=$(awk "
+    /^  ai_native_kit:/{in_ank=1}
+    in_ank && /^    sdd-brainstorm:/{in_act=1}
+    in_act && /SDD OVERRIDE/{print 1; exit}
+  " "$delegates")
+  if [ -z "$has_override_text" ]; then
+    fail "$label -- ai_native_kit.sdd-brainstorm transition_suppression missing 'SDD OVERRIDE' text"
+    ok=false
+  fi
+
+  # ai_native_kit actions that should NOT have transition_suppression
+  local ank_no_ts=(sdd-propose sdd-ff sdd-review-spec sdd-review-code sdd-verify sdd-ship)
+  for action in "${ank_no_ts[@]}"; do
+    local has_ts
+    has_ts=$(awk "
+      /^  ai_native_kit:/{in_ank=1}
+      in_ank && /^    ${action}:/{in_act=1; next}
+      in_act && /^    [a-z]/{in_act=0}
+      in_act && /transition_suppression:/{print 1; exit}
+    " "$delegates")
+    if [ -n "$has_ts" ]; then
+      fail "$label -- ai_native_kit.$action has unexpected 'transition_suppression'"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
 run_structural() {
   echo "=== Structural Tests ==="
   t1_1
@@ -1385,6 +1554,8 @@ run_structural() {
   t2_12
   t2_13
   t2_14
+  t2_15
+  t2_16
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }

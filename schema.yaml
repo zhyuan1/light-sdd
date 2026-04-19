@@ -14,7 +14,7 @@ provenance:
       description: >
         Structured object identifying the bottom-layer skill that produced
         this artifact. Contains two sub-fields:
-          framework: which framework the skill belongs to (openspec, superpowers, ecc, sdd)
+          framework: which framework the skill belongs to (openspec, superpowers, ecc, gstack, ai_native_kit, sdd)
           skill: the specific skill name (e.g. "brainstorming", "ff-change")
     - name: sdd_action
       required: true
