@@ -427,12 +427,14 @@ profiles:
     sdd-code:
       primary:
         - framework: ai_native_kit
+          skill: interface-test-case-writer
+        - framework: ai_native_kit
           skill: backend-task-executor
         - framework: ai_native_kit
           skill: frontend-task-executor
       manual_message: >-
-        ai_native_kit execution skills (`backend-task-executor`,
-        `frontend-task-executor`) not found.
+        ai_native_kit execution skills (`interface-test-case-writer`,
+        `backend-task-executor`, `frontend-task-executor`) not found.
         Proceeding with direct TDD coding -- SDD will enforce
         RED-GREEN-REFACTOR cycle directly.
       partial_availability: true
@@ -458,6 +460,9 @@ profiles:
       primary:
         - framework: ai_native_kit
           skill: design-review
+      fallback:
+        - framework: ai_native_kit
+          skill: requirement-check
       manual_message: >-
         ai_native_kit `design-review` not found.
         SDD will review specs directly against schema.yaml requirements.
@@ -470,11 +475,11 @@ profiles:
         phase2:
           primary:
             - framework: ai_native_kit
-              skill: code-check
-            - framework: ai_native_kit
               skill: consistency-check
+            - framework: ai_native_kit
+              skill: code-check
           manual_message: >-
-            ai_native_kit review skills (`code-check`, `consistency-check`) not found.
+            ai_native_kit review skills (`consistency-check`, `code-check`) not found.
             Phase 1 (spec compliance) will run.
             Phase 2 (code quality) skipped -- consider manual code review.
 
@@ -483,14 +488,16 @@ profiles:
         step1:
           primary:
             - framework: ai_native_kit
+              skill: interface-test-case-executor
+            - framework: ai_native_kit
               skill: functional-verification
         step2:
           primary:
             - framework: ai_native_kit
-              skill: bvt-case-validation
+              skill: test-validation
       manual_message: >-
-        ai_native_kit verification skills (`functional-verification`,
-        `bvt-case-validation`) not found.
+        ai_native_kit verification skills (`interface-test-case-executor`,
+        `functional-verification`, `test-validation`) not found.
         SDD will verify acceptance criteria against test results
         and implementation directly.
       partial_availability: true
