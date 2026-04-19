@@ -133,6 +133,7 @@ The active profile is persisted to `.sdd/config.yaml` and read before every skil
 |---------|-----------|-------|
 | `default` | Superpowers + OpenSpec + ECC fallback | Installed out of the box |
 | `gstack` | gstack skills | Alternative framework stack; falls through to manual if not installed |
+| `ai_native_kit` | LCT AI-Native Kit skills | Enterprise workflow stack (requirement-spec, backend/frontend-task-executor, design-review, etc.); ECC `think` fills brainstorming since the framework starts from structured requirements |
 
 ### Adding profiles
 
