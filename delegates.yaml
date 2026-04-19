@@ -193,6 +193,12 @@ sdd-ship:
 # Exception: sdd-ship sync/archive keep openspec because gstack has no
 # spec-sync or archive equivalent (these are not fallbacks -- they are the
 # correct primary tools for those phases regardless of profile).
+#
+# ai_native_kit profile notes:
+#   sdd-brainstorm has no direct counterpart in ai_native_kit (that framework
+#   starts from structured requirement analysis, not open-ended brainstorming).
+#   ECC `think` is used as primary so the action remains functional.
+#   sdd-ship sync/archive keep openspec (same reason as gstack profile).
 # ─────────────────────────────────────────────────────────────────────────────
 
 profiles:
@@ -348,5 +354,173 @@ profiles:
               skill: land-and-deploy
           manual_message: >-
             gstack ship skills (`ship`, `land-and-deploy`) not found.
+            SDD will present git options (merge/PR/preserve/discard)
+            and execute directly.
+
+  ai_native_kit:
+
+    # sdd-brainstorm: no direct counterpart in ai_native_kit (that framework
+    # begins from structured requirement analysis, not open-ended ideation).
+    # ECC `think` is used as primary so the action stays fully functional.
+    sdd-brainstorm:
+      primary:
+        - framework: ecc
+          skill: think
+      manual_message: >-
+        ECC `think` not found.
+        Proceeding in manual mode -- SDD will guide you through
+        the brainstorm template directly.
+      transition_suppression:
+        - delegate_skill: think
+          suppress: []
+          override_text: >-
+            SDD OVERRIDE: When `think` completes, do NOT invoke any planning
+            or proposal skill automatically. Your scope is limited to producing
+            `brainstorm.md`. Return control to SDD -- the next step is
+            `/sdd-propose`, not any execution skill.
+
+    sdd-propose:
+      primary:
+        - framework: ai_native_kit
+          skill: requirement-spec
+      manual_message: >-
+        ai_native_kit `requirement-spec` not found.
+        Proceeding in manual mode -- SDD will guide you through
+        the proposal template directly.
+
+    sdd-ff:
+      primary:
+        - framework: ai_native_kit
+          skill: workflow-plan
+      manual_message: >-
+        ai_native_kit `workflow-plan` not found.
+        Proceeding in manual mode -- SDD will generate artifacts
+        using templates and spec context directly.
+
+    sdd-plan:
+      primary:
+        - framework: ai_native_kit
+          skill: wbs-all
+      fallback:
+        - framework: ai_native_kit
+          skill: backend-wbs
+      manual_message: >-
+        ai_native_kit `wbs-all` not found.
+        Proceeding in manual mode -- SDD will generate the plan
+        using spec context and task list directly.
+      transition_suppression:
+        - delegate_skill: wbs-all
+          suppress: []
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke any coding or execution skill after
+            wbs-all completes. Your scope is limited to producing `plan.md`.
+            Return control to SDD -- the next step is `/sdd-code`, not an
+            execution skill.
+        - delegate_skill: backend-wbs
+          suppress: []
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke any coding or execution skill after
+            backend-wbs completes. Your scope is limited to producing `plan.md`.
+            Return control to SDD -- the next step is `/sdd-code`, not an
+            execution skill.
+
+    sdd-code:
+      primary:
+        - framework: ai_native_kit
+          skill: backend-task-executor
+        - framework: ai_native_kit
+          skill: frontend-task-executor
+      manual_message: >-
+        ai_native_kit execution skills (`backend-task-executor`,
+        `frontend-task-executor`) not found.
+        Proceeding with direct TDD coding -- SDD will enforce
+        RED-GREEN-REFACTOR cycle directly.
+      partial_availability: true
+      transition_suppression:
+        - delegate_skill: backend-task-executor
+          suppress: []
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke `version-archive`, `version-push`, or
+            any finishing skill after backend-task-executor completes. Your
+            scope is limited to executing the tasks in the current batch.
+            Return control to SDD -- workspace management and branch finishing
+            are handled by `/sdd-ship`.
+        - delegate_skill: frontend-task-executor
+          suppress: []
+          override_text: >-
+            SDD OVERRIDE: Do NOT invoke `version-archive`, `version-push`, or
+            any finishing skill after frontend-task-executor completes. Your
+            scope is limited to executing the tasks in the current batch.
+            Return control to SDD -- workspace management and branch finishing
+            are handled by `/sdd-ship`.
+
+    sdd-review-spec:
+      primary:
+        - framework: ai_native_kit
+          skill: design-review
+      manual_message: >-
+        ai_native_kit `design-review` not found.
+        SDD will review specs directly against schema.yaml requirements.
+
+    sdd-review-code:
+      phases:
+        phase1:
+          description: Spec compliance review (SDD self-logic)
+          delegate: self
+        phase2:
+          primary:
+            - framework: ai_native_kit
+              skill: code-check
+            - framework: ai_native_kit
+              skill: consistency-check
+          manual_message: >-
+            ai_native_kit review skills (`code-check`, `consistency-check`) not found.
+            Phase 1 (spec compliance) will run.
+            Phase 2 (code quality) skipped -- consider manual code review.
+
+    sdd-verify:
+      phases:
+        step1:
+          primary:
+            - framework: ai_native_kit
+              skill: functional-verification
+        step2:
+          primary:
+            - framework: ai_native_kit
+              skill: bvt-case-validation
+      manual_message: >-
+        ai_native_kit verification skills (`functional-verification`,
+        `bvt-case-validation`) not found.
+        SDD will verify acceptance criteria against test results
+        and implementation directly.
+      partial_availability: true
+
+    sdd-ship:
+      # sync and archive: openspec is the correct primary tool regardless of
+      # profile -- ai_native_kit has no spec-sync equivalent.
+      # finish: version-archive + version-push handle branch merging and archiving.
+      phases:
+        sync:
+          primary:
+            - framework: openspec
+              skill: sync-specs
+          inline_fallback: >-
+            SDD performs a direct file copy from `.sdd/changes/<name>/specs/`
+            to the project spec location.
+        archive:
+          primary:
+            - framework: openspec
+              skill: archive-change
+          inline_fallback: >-
+            SDD performs a direct directory move to `.sdd/changes/archive/`.
+        finish:
+          primary:
+            - framework: ai_native_kit
+              skill: version-archive
+          fallback:
+            - framework: ai_native_kit
+              skill: version-push
+          manual_message: >-
+            ai_native_kit `version-archive` not found.
             SDD will present git options (merge/PR/preserve/discard)
             and execute directly.
