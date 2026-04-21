@@ -40,7 +40,12 @@ When searching for a delegate skill, check these locations in order:
 3. `.claude/skills/` (project-level install)
 4. Any project-configured skill paths (from `.claude/settings.json` or MCP configuration)
 
-A skill is "found" if its `SKILL.md` file exists at any search path location.
+For each search path, attempt to locate the skill using **two name strategies** in order:
+
+1. **Namespaced path**: `{search-path}/{framework}/{skill}/SKILL.md` — used when skills are organized by framework subdirectory (e.g., `~/.claude/skills/superpowers/brainstorming/SKILL.md`).
+2. **Flat path**: `{search-path}/{skill}/SKILL.md` — used when skills are installed in a flat namespace regardless of framework (e.g., `~/.claude-internal/skills/brainstorming/SKILL.md`).
+
+A skill is "found" if its `SKILL.md` exists at **either** path in **any** search location. Stop at the first match.
 
 ---
 
