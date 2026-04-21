@@ -228,7 +228,7 @@ brainstorm.md -> proposal.md -> specs/ -> design.md -> tasks.md -> plan.md
 
 ### 自动降级
 
-每个委派型 action 在 Pre-check 阶段包含 **Delegation availability check** 步骤。它会在标准 skill 路径（`~/.claude/skills/`、`.claude/skills/`、项目配置路径）中搜索目标 skill。如果未找到：
+每个委派型 action 在 Pre-check 阶段包含 **Delegation availability check** 步骤。它会在标准 skill 路径（`~/.claude/skills/`、`~/.claude-internal/skills/`、`.claude/skills/`、项目配置路径）中搜索目标 skill。如果未找到：
 
 1. 尝试使用备选 skill（例如用 ECC `think` 替代 Superpowers `brainstorming`）
 2. 如果备选也不存在，进入手动模式（SDD 直接引导用户填写模板）

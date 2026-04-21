@@ -228,7 +228,7 @@ All artifacts live in `.sdd/changes/<change-name>/`. Progress is inferred from w
 
 ### Automatic Fallback
 
-Every delegating action includes a **Delegation availability check** in its Pre-check phase. It searches for the target skill in the standard skill paths (`~/.claude/skills/`, `.claude/skills/`, project-configured paths). If the target is not found:
+Every delegating action includes a **Delegation availability check** in its Pre-check phase. It searches for the target skill in the standard skill paths (`~/.claude/skills/`, `~/.claude-internal/skills/`, `.claude/skills/`, project-configured paths). If the target is not found:
 
 1. Try the listed fallback skill (e.g., ECC `think` instead of Superpowers `brainstorming`)
 2. If fallback also missing, proceed in manual mode (SDD guides the user through the template directly)

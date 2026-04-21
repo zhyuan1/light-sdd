@@ -31,7 +31,8 @@ Usage:
 2. **Locate `delegates.yaml`**: search using the path priority from delegation-protocol.md §1:
    - `.claude/skills/sdd-templates/delegates.yaml` (project-level, higher priority)
    - `~/.claude/skills/sdd-templates/delegates.yaml` (user-level)
-   - Stop at the first file found. If neither exists, report:
+   - `~/.claude-internal/skills/sdd-templates/delegates.yaml` (user-level private install)
+   - Stop at the first file found. If none exists, report:
      > `delegates.yaml` not found. Is light-sdd installed? Run `./install.sh` to install.
    - And stop.
 

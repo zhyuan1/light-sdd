@@ -36,8 +36,9 @@ Before resolving any delegate skill, determine the active profile:
 When searching for a delegate skill, check these locations in order:
 
 1. `~/.claude/skills/` (user-level install)
-2. `.claude/skills/` (project-level install)
-3. Any project-configured skill paths (from `.claude/settings.json` or MCP configuration)
+2. `~/.claude-internal/skills/` (user-level private install)
+3. `.claude/skills/` (project-level install)
+4. Any project-configured skill paths (from `.claude/settings.json` or MCP configuration)
 
 A skill is "found" if its `SKILL.md` file exists at any search path location.
 
