@@ -56,14 +56,13 @@ For actions with a flat `primary` / `fallback` structure in `delegates.yaml`:
 ```
 1. For each entry in `primary` (in order):
    - Search for {framework}/{skill} in the search paths.
-   - If found → use it. Stop searching.
+   - If found → log one line, then use it. Stop searching.
+       > Delegating to {framework} `{skill}`.
 
 2. If no primary found, for each entry in `fallback` (in order):
    - Search for {framework}/{skill} in the search paths.
-   - If found → inform the user:
-       > {Primary framework} `{primary skill}` not found.
-       > Using {fallback framework} `{fallback skill}` as fallback.
-   - Use it. Stop searching.
+   - If found → log one line, then use it. Stop searching.
+       > {Primary framework} `{primary skill}` not found. Delegating to {fallback framework} `{fallback skill}` (fallback).
 
 3. If nothing found → enter manual mode:
    - Display the `manual_message` from delegates.yaml.
@@ -78,7 +77,8 @@ When `partial_availability: true` is set (e.g., `sdd-code`), the action uses mul
 
 ```
 1. Search for ALL entries in `primary`.
-2. For each found skill, record it as available.
+2. For each found skill, record it as available and log one line:
+     > Delegating to {framework} `{skill}`.
 3. For each missing skill, warn the user:
      > {framework} `{skill}` not found. This capability will be reduced.
 4. If ALL primaries are missing, fall through to `fallback` chain (step 2 above).
@@ -94,7 +94,8 @@ When the action has a `phases` key (e.g., `sdd-review-code`, `sdd-verify`, `sdd-
 ```
 For each phase:
   1. If `delegate: self` → SDD handles this phase directly (no external search).
-  2. If the phase has its own `primary` / `fallback` → resolve using Single-Delegate Resolution.
+  2. If the phase has its own `primary` / `fallback` → resolve using Single-Delegate Resolution
+     (including the one-line log on selection).
   3. If the phase has `inline_fallback` → use that SDD-native logic when the primary is missing.
   4. If the phase has no fallback of its own, use the action-level `fallback` list.
 
@@ -105,11 +106,10 @@ Any phase's resolution is independent: Phase 1 using a fallback does not affect 
 
 ## 5. User Notification Format
 
-When a fallback or manual mode is activated, notify the user with a blockquote:
-
-- **Fallback**: `> {Primary framework} \`{primary skill}\` not found. Using {fallback framework} \`{fallback skill}\` as fallback.`
+- **Primary selected**: `> Delegating to {framework} \`{skill}\`.`
+- **Fallback selected**: `> {Primary framework} \`{primary skill}\` not found. Delegating to {fallback framework} \`{fallback skill}\` (fallback).`
 - **Manual mode**: Display the `manual_message` verbatim from `delegates.yaml`.
-- **Partial availability**: `> {framework} \`{skill}\` not found. Proceeding with available skills; {missing capability} will be handled by SDD directly.`
+- **Partial availability (missing)**: `> {framework} \`{skill}\` not found. Proceeding with available skills; {missing capability} will be handled by SDD directly.`
 
 ---
 
