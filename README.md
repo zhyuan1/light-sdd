@@ -59,12 +59,61 @@ Each action skill follows a three-part structure:
 
 SDD delegates to these frameworks by default:
 
-| Framework | Used by | Install |
-|-----------|---------|---------|
-| [OpenSpec](https://github.com/fission-ai/openspec) | propose, ff, verify, ship | `npm i -g @fission-ai/openspec` |
-| [Superpowers](https://github.com/obra/superpowers) | brainstorm, plan, code, review-code, verify, ship | Copy skills to `~/.claude/skills/` |
+| Framework | Used by | Required |
+|-----------|---------|----------|
+| [OpenSpec](https://github.com/fission-ai/openspec) | propose, ff, verify, ship | Recommended |
+| [Superpowers](https://github.com/obra/superpowers) | brainstorm, plan, code, review-code, verify, ship | Recommended |
+| [ECC](https://github.com/badass-courses/everything-claude-code) | brainstorm (fallback) | Optional |
 
-Each SDD action automatically detects whether the target framework is available at runtime. If not found, it falls back to an alternative skill (typically ECC) or manual mode. No manual configuration needed.
+Install only what you use. SDD detects availability at runtime and degrades gracefully -- missing frameworks trigger fallback or manual mode, not errors.
+
+#### OpenSpec
+
+```bash
+npm install -g @fission-ai/openspec
+
+# Initialize skill files into ~/.claude/skills/ (required -- CLI alone is not enough)
+openspec init --tools claude
+
+# Verify -- these skill files should now be present
+ls ~/.claude/skills/ | grep -E "continue-change|ff-change|sync-specs|verify-change|archive-change"
+```
+
+#### Superpowers
+
+```bash
+git clone https://github.com/obra/superpowers
+cp -r superpowers/skills/* ~/.claude/skills/
+
+# Verify -- these skill files should now be present
+ls ~/.claude/skills/ | grep -E "brainstorming|writing-plans|executing-plans"
+```
+
+#### ECC (Everything Claude Code)
+
+ECC is optional -- used only as a fallback when Superpowers is not installed.
+
+```bash
+git clone https://github.com/badass-courses/everything-claude-code
+cd everything-claude-code
+./install.sh          # installs skills, agents, commands to ~/.claude/
+
+# Verify
+ls ~/.claude/skills/ | grep -E "^think$|^check$|^plan$|^hunt$"
+```
+
+#### gstack
+
+gstack is only needed if you switch to the `gstack` profile via `/sdd-use gstack`.
+
+```bash
+git clone https://github.com/garrytan/gstack ~/.claude/skills/gstack
+
+# Verify -- these skill files should now be present
+ls ~/.claude/skills/gstack | grep -E "brainstorming|office-hours|review|ship|qa"
+```
+
+> **Note**: gstack requires [Bun](https://bun.sh) (v1.0+). Install with `curl -fsSL https://bun.sh/install | bash`.
 
 ## Workflow
 

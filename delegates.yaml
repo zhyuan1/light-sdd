@@ -16,7 +16,7 @@ sdd-brainstorm:
       skill: brainstorming
   fallback:
     - framework: ecc
-      skill: think
+      skill: blueprint
   manual_message: >-
     No brainstorming skill available (Superpowers, ECC).
     Proceeding in manual mode -- SDD will guide you through
@@ -37,7 +37,7 @@ sdd-propose:
       skill: continue-change
   fallback:
     - framework: ecc
-      skill: think
+      skill: blueprint
   manual_message: >-
     No proposal skill available (OpenSpec, ECC).
     Proceeding in manual mode -- SDD will guide you through
@@ -49,7 +49,7 @@ sdd-ff:
       skill: ff-change
   fallback:
     - framework: ecc
-      skill: plan
+      skill: blueprint
   manual_message: >-
     No fast-forward skill available (OpenSpec, ECC).
     Proceeding in manual mode -- SDD will generate artifacts
@@ -61,9 +61,7 @@ sdd-plan:
       skill: writing-plans
   fallback:
     - framework: ecc
-      skill: plan
-    - framework: ecc
-      skill: think
+      skill: blueprint
   manual_message: >-
     No planning skill available (Superpowers, ECC).
     Proceeding in manual mode -- SDD will generate the plan
@@ -90,9 +88,9 @@ sdd-code:
       skill: systematic-debugging
   fallback:
     - framework: ecc
-      skill: tdd
+      skill: tdd-workflow
     - framework: ecc
-      skill: hunt
+      skill: search-first
   manual_message: >-
     No execution skills available (Superpowers, ECC).
     Proceeding with direct TDD coding -- SDD will enforce
@@ -122,7 +120,7 @@ sdd-review-code:
           skill: requesting-code-review
       fallback:
         - framework: ecc
-          skill: check
+          skill: security-review
       manual_message: >-
         No code review skill available (Superpowers, ECC).
         Phase 1 (spec compliance) will run.
@@ -139,8 +137,6 @@ sdd-verify:
         - framework: superpowers
           skill: verification-before-completion
   fallback:
-    - framework: ecc
-      skill: check
     - framework: ecc
       skill: verification-loop
   manual_message: >-
@@ -170,7 +166,7 @@ sdd-ship:
           skill: finishing-a-development-branch
       fallback:
         - framework: ecc
-          skill: check
+          skill: git-workflow
       manual_message: >-
         Superpowers `finishing-a-development-branch` not found.
         SDD will present git options (merge/PR/preserve/discard)
@@ -361,23 +357,24 @@ profiles:
 
     # sdd-brainstorm: no direct counterpart in ai_native_kit (that framework
     # begins from structured requirement analysis, not open-ended ideation).
-    # ECC `think` is used as primary so the action stays fully functional.
+    # Superpowers `brainstorming` is used as primary so the action stays fully functional.
     sdd-brainstorm:
       primary:
-        - framework: ecc
-          skill: think
+        - framework: superpowers
+          skill: brainstorming
       manual_message: >-
-        ECC `think` not found.
+        Superpowers `brainstorming` not found.
         Proceeding in manual mode -- SDD will guide you through
         the brainstorm template directly.
       transition_suppression:
-        - delegate_skill: think
-          suppress: []
+        - delegate_skill: brainstorming
+          suppress:
+            - writing-plans
           override_text: >-
-            SDD OVERRIDE: When `think` completes, do NOT invoke any planning
-            or proposal skill automatically. Your scope is limited to producing
-            `brainstorm.md`. Return control to SDD -- the next step is
-            `/sdd-propose`, not any execution skill.
+            SDD OVERRIDE: Do NOT invoke `writing-plans` or any other skill after
+            brainstorming completes. Your scope is limited to producing `brainstorm.md`.
+            Return control to SDD when the brainstorm document is finalized. SDD controls
+            the workflow -- the next step is `/sdd-propose`, not `writing-plans`.
 
     sdd-propose:
       primary:
