@@ -4,8 +4,7 @@ description: Structured brainstorming for a new change
 metadata:
   version: "0.1.0"
   sdd_action: brainstorm
-  delegates_to:
-    - "brainstorming"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

@@ -4,8 +4,7 @@ description: Fast-forward -- batch-generate missing artifacts
 metadata:
   version: "0.1.0"
   sdd_action: ff
-  delegates_to:
-    - "openspec-ff-change"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

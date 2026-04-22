@@ -4,8 +4,7 @@ description: Two-phase code review -- spec compliance then code quality
 metadata:
   version: "0.1.0"
   sdd_action: review-code
-  delegates_to:
-    - "requesting-code-review"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

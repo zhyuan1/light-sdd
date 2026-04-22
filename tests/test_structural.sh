@@ -441,22 +441,22 @@ t1_13() {
   for skill in "${delegating_skills[@]}"; do
     local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
 
-    # Extract delegates_to list from SKILL.md frontmatter
-    local fm_delegates
-    fm_delegates=$(sed -n '/^---$/,/^---$/p' "$skill_file" | awk '/delegates_to:/{found=1; next} found && /- /{gsub(/.*- "?/, ""); gsub(/".*/, ""); print} found && !/- / && !/^$/{found=0}')
+    # delegates_to must be "delegates.yaml" -- not a skill list
+    local fm_delegates_to
+    fm_delegates_to=$(sed -n '/^---$/,/^---$/p' "$skill_file" | awk '/delegates_to:/{gsub(/.*delegates_to: */, ""); print; exit}')
 
-    # For each delegate in frontmatter, verify it appears as a skill in delegates.yaml under this action
-    while IFS= read -r delegate_skill; do
-      [ -z "$delegate_skill" ] && continue
-      # Check that delegates.yaml mentions this skill name under the action entry
-      local in_registry
-      in_registry=$(awk "/^${skill}:/{found=1; next} /^[a-z]/{found=0} found && /skill: ${delegate_skill}/{print 1; exit}" "$delegates")
+    if [ "$fm_delegates_to" != "delegates.yaml" ]; then
+      fail "$label -- $skill frontmatter 'delegates_to' should be 'delegates.yaml', got '$fm_delegates_to'"
+      ok=false
+    fi
 
-      if [ -z "$in_registry" ]; then
-        fail "$label -- $skill frontmatter lists delegate '$delegate_skill' not found in delegates.yaml"
-        ok=false
-      fi
-    done <<< "$fm_delegates"
+    # The corresponding action entry must exist in delegates.yaml
+    local in_registry
+    in_registry=$(awk "/^${skill}:/{print 1; exit}" "$delegates")
+    if [ -z "$in_registry" ]; then
+      fail "$label -- $skill has delegates_to: delegates.yaml but no entry found in delegates.yaml"
+      ok=false
+    fi
   done
 
   if $ok; then pass "$label"; fi

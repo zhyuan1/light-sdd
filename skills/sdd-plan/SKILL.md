@@ -4,8 +4,7 @@ description: Create a detailed execution plan for the current batch
 metadata:
   version: "0.1.0"
   sdd_action: plan
-  delegates_to:
-    - "writing-plans"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

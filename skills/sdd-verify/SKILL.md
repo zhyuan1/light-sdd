@@ -4,9 +4,7 @@ description: Verify implementation against all specs with coverage stats
 metadata:
   version: "0.1.0"
   sdd_action: verify
-  delegates_to:
-    - "openspec-verify-change"
-    - "verification-before-completion"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

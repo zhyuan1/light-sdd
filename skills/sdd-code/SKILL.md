@@ -4,10 +4,7 @@ description: Execute implementation tasks with TDD discipline
 metadata:
   version: "0.1.0"
   sdd_action: code
-  delegates_to:
-    - "test-driven-development"
-    - "executing-plans"
-    - "systematic-debugging"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

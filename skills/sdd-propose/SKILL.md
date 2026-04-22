@@ -4,8 +4,7 @@ description: Create or continue a change proposal via OpenSpec
 metadata:
   version: "0.1.0"
   sdd_action: propose
-  delegates_to:
-    - "openspec-continue-change"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 

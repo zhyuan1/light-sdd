@@ -4,10 +4,7 @@ description: Finalize change -- sync specs, archive, and ship
 metadata:
   version: "0.1.0"
   sdd_action: ship
-  delegates_to:
-    - "openspec-sync-specs"
-    - "openspec-archive-change"
-    - "finishing-a-development-branch"
+  delegates_to: delegates.yaml
   overridable: true
 ---
 
