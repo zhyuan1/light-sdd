@@ -1450,15 +1450,16 @@ if pm:
     ok=false
   fi
 
-  # ai_native_kit sdd-brainstorm must use ecc (no direct counterpart in ai_native_kit)
+  # ai_native_kit sdd-brainstorm must use superpowers (same as default; ai_native_kit has no
+  # direct brainstorm counterpart, so superpowers/brainstorming is reused)
   local brainstorm_framework
   brainstorm_framework=$(awk "
     /^  ai_native_kit:/{in_ank=1}
     in_ank && /^    sdd-brainstorm:/{in_act=1}
     in_act && /framework:/{gsub(/.*framework: /, \"\"); gsub(/ *$/, \"\"); print; exit}
   " "$delegates")
-  if [ "$brainstorm_framework" != "ecc" ]; then
-    fail "$label -- ai_native_kit.sdd-brainstorm should use ecc, got '$brainstorm_framework'"
+  if [ "$brainstorm_framework" != "superpowers" ]; then
+    fail "$label -- ai_native_kit.sdd-brainstorm should use superpowers, got '$brainstorm_framework'"
     ok=false
   fi
 
@@ -1520,6 +1521,111 @@ t2_16() {
   if $ok; then pass "$label"; fi
 }
 
+# ---------------------------------------------------------------------------
+# T2.17 Base ECC fallback skill names -- all must exist in ECC skill set
+# ---------------------------------------------------------------------------
+t2_17() {
+  local label="T2.17 Base ECC fallback skill names correctness"
+  local delegates="$REPO_ROOT/delegates.yaml"
+  local ok=true
+
+  # Helper: extract skill value after a framework: ecc line within an action's block
+  # Usage: ecc_skill_in_action <action> <nth-occurrence>
+  ecc_skills_for_action() {
+    local action="$1"
+    python3 - "$delegates" "$action" <<'PYEOF'
+import sys, re
+
+path, action = sys.argv[1], sys.argv[2]
+content = open(path).read()
+
+# Extract base section only (before profiles:)
+base = re.split(r'\nprofiles:', content, maxsplit=1)[0]
+
+# Find the action block
+m = re.search(r'^' + re.escape(action) + r':(.+?)(?=^\S|\Z)', base, re.MULTILINE | re.DOTALL)
+if not m:
+    sys.exit(0)
+
+block = m.group(1)
+
+# Find all ecc skill entries: framework: ecc followed by skill: <name>
+pairs = re.findall(r'framework:\s*ecc\s*\n\s*skill:\s*(\S+)', block)
+for p in pairs:
+    print(p)
+PYEOF
+  }
+
+  # sdd-brainstorm fallback -> ecc/blueprint
+  local v
+  v=$(ecc_skills_for_action "sdd-brainstorm" | head -1)
+  if [ "$v" != "blueprint" ]; then
+    fail "$label -- sdd-brainstorm ecc fallback should be 'blueprint', got '$v'"
+    ok=false
+  fi
+
+  # sdd-propose fallback -> ecc/blueprint
+  v=$(ecc_skills_for_action "sdd-propose" | head -1)
+  if [ "$v" != "blueprint" ]; then
+    fail "$label -- sdd-propose ecc fallback should be 'blueprint', got '$v'"
+    ok=false
+  fi
+
+  # sdd-ff fallback -> ecc/blueprint
+  v=$(ecc_skills_for_action "sdd-ff" | head -1)
+  if [ "$v" != "blueprint" ]; then
+    fail "$label -- sdd-ff ecc fallback should be 'blueprint', got '$v'"
+    ok=false
+  fi
+
+  # sdd-plan fallback -> ecc/blueprint
+  v=$(ecc_skills_for_action "sdd-plan" | head -1)
+  if [ "$v" != "blueprint" ]; then
+    fail "$label -- sdd-plan ecc fallback should be 'blueprint', got '$v'"
+    ok=false
+  fi
+
+  # sdd-code fallback -> ecc/tdd-workflow + ecc/search-first
+  local code_ecc_skills
+  code_ecc_skills=$(ecc_skills_for_action "sdd-code")
+  if ! echo "$code_ecc_skills" | grep -qx "tdd-workflow"; then
+    fail "$label -- sdd-code ecc fallback missing 'tdd-workflow'"
+    ok=false
+  fi
+  if ! echo "$code_ecc_skills" | grep -qx "search-first"; then
+    fail "$label -- sdd-code ecc fallback missing 'search-first'"
+    ok=false
+  fi
+
+  # sdd-review-code phase2 fallback -> ecc/security-review
+  v=$(ecc_skills_for_action "sdd-review-code" | head -1)
+  if [ "$v" != "security-review" ]; then
+    fail "$label -- sdd-review-code ecc fallback should be 'security-review', got '$v'"
+    ok=false
+  fi
+
+  # sdd-verify fallback -> ecc/verification-loop (must NOT contain 'check')
+  local verify_ecc_skills
+  verify_ecc_skills=$(ecc_skills_for_action "sdd-verify")
+  if ! echo "$verify_ecc_skills" | grep -qx "verification-loop"; then
+    fail "$label -- sdd-verify ecc fallback missing 'verification-loop'"
+    ok=false
+  fi
+  if echo "$verify_ecc_skills" | grep -qx "check"; then
+    fail "$label -- sdd-verify ecc fallback must NOT contain deprecated 'check'"
+    ok=false
+  fi
+
+  # sdd-ship finish fallback -> ecc/git-workflow (not 'check')
+  v=$(ecc_skills_for_action "sdd-ship" | head -1)
+  if [ "$v" != "git-workflow" ]; then
+    fail "$label -- sdd-ship finish ecc fallback should be 'git-workflow', got '$v'"
+    ok=false
+  fi
+
+  if $ok; then pass "$label"; fi
+}
+
 run_structural() {
   echo "=== Structural Tests ==="
   t1_1
@@ -1556,6 +1662,7 @@ run_structural() {
   t2_14
   t2_15
   t2_16
+  t2_17
   echo ""
   echo "Structural: $PASS passed, $FAIL failed"
 }
