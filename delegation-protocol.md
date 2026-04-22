@@ -38,7 +38,8 @@ When searching for a delegate skill, check these locations in order:
 1. `~/.claude/skills/` (user-level install)
 2. `~/.claude-internal/skills/` (user-level private install)
 3. `.claude/skills/` (project-level install)
-4. Any project-configured skill paths (from `.claude/settings.json` or MCP configuration)
+4. `.claude-internal/skills/` (project-level private install)
+5. Any project-configured skill paths (from `.claude/settings.json` or MCP configuration)
 
 For each search path, attempt to locate the skill using **two name strategies** in order:
 
