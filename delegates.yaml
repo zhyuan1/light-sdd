@@ -34,7 +34,7 @@ sdd-brainstorm:
 sdd-propose:
   primary:
     - framework: openspec
-      skill: continue-change
+      skill: openspec-continue-change
   fallback:
     - framework: ecc
       skill: blueprint
@@ -46,7 +46,7 @@ sdd-propose:
 sdd-ff:
   primary:
     - framework: openspec
-      skill: ff-change
+      skill: openspec-ff-change
   fallback:
     - framework: ecc
       skill: blueprint
@@ -131,7 +131,7 @@ sdd-verify:
     step1:
       primary:
         - framework: openspec
-          skill: verify-change
+          skill: openspec-verify-change
     step2:
       primary:
         - framework: superpowers
@@ -150,14 +150,14 @@ sdd-ship:
     sync:
       primary:
         - framework: openspec
-          skill: sync-specs
+          skill: openspec-sync-specs
       inline_fallback: >-
         SDD performs a direct file copy from `.sdd/changes/<name>/specs/`
         to the project spec location.
     archive:
       primary:
         - framework: openspec
-          skill: archive-change
+          skill: openspec-archive-change
       inline_fallback: >-
         SDD performs a direct directory move to `.sdd/changes/archive/`.
     finish:
@@ -331,14 +331,14 @@ profiles:
         sync:
           primary:
             - framework: openspec
-              skill: sync-specs
+              skill: openspec-sync-specs
           inline_fallback: >-
             SDD performs a direct file copy from `.sdd/changes/<name>/specs/`
             to the project spec location.
         archive:
           primary:
             - framework: openspec
-              skill: archive-change
+              skill: openspec-archive-change
           inline_fallback: >-
             SDD performs a direct directory move to `.sdd/changes/archive/`.
         finish:
@@ -507,14 +507,14 @@ profiles:
         sync:
           primary:
             - framework: openspec
-              skill: sync-specs
+              skill: openspec-sync-specs
           inline_fallback: >-
             SDD performs a direct file copy from `.sdd/changes/<name>/specs/`
             to the project spec location.
         archive:
           primary:
             - framework: openspec
-              skill: archive-change
+              skill: openspec-archive-change
           inline_fallback: >-
             SDD performs a direct directory move to `.sdd/changes/archive/`.
         finish:

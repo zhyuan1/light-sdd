@@ -5,13 +5,13 @@ metadata:
   version: "0.1.0"
   sdd_action: propose
   delegates_to:
-    - "continue-change"
+    - "openspec-continue-change"
   overridable: true
 ---
 
 # sdd-propose
 
-Create a new SDD change or continue an existing proposal. Delegates the core proposal generation to OpenSpec's `continue-change` skill.
+Create a new SDD change or continue an existing proposal. Delegates the core proposal generation to OpenSpec's `openspec-continue-change` skill.
 
 ---
 
@@ -51,7 +51,7 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
 
 ## Core Execution
 
-**Default delegation**: invoke OpenSpec `continue-change`.
+**Default delegation**: invoke OpenSpec `openspec-continue-change`.
 
 Provide to the delegate:
 - The change name.
@@ -81,7 +81,7 @@ To use an alternative skill, replace the delegation target:
 0. **Provenance stamp**: update the YAML frontmatter in `proposal.md` with the
    framework and skill resolved during Pre-check delegation:
    - `generated_by.framework`: the resolved framework (e.g. `openspec`, `gstack`, `ecc`, or `sdd` for manual)
-   - `generated_by.skill`: the resolved skill (e.g. `continue-change`, `plan-ceo-review`, `think`)
+   - `generated_by.skill`: the resolved skill (e.g. `openspec-continue-change`, `plan-ceo-review`, `think`)
    - `sdd_action`: `sdd-propose`
    - `timestamp`: current ISO 8601 timestamp
 

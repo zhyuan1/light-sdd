@@ -5,13 +5,13 @@ metadata:
   version: "0.1.0"
   sdd_action: ff
   delegates_to:
-    - "ff-change"
+    - "openspec-ff-change"
   overridable: true
 ---
 
 # sdd-ff
 
-Fast-forward through the artifact dependency chain by batch-generating all missing required artifacts. Delegates to OpenSpec's `ff-change` skill.
+Fast-forward through the artifact dependency chain by batch-generating all missing required artifacts. Delegates to OpenSpec's `openspec-ff-change` skill.
 
 ---
 
@@ -56,7 +56,7 @@ Fast-forward through the artifact dependency chain by batch-generating all missi
 
 ## Core Execution
 
-**Default delegation**: invoke OpenSpec `ff-change`.
+**Default delegation**: invoke OpenSpec `openspec-ff-change`.
 
 Provide to the delegate:
 - Contents of `proposal.md`.
@@ -80,7 +80,7 @@ Expect from the delegate:
 
 0. **Provenance stamp**: for each generated artifact (specs, tasks.md, design.md), update its YAML frontmatter with the framework and skill resolved during Pre-check delegation:
    - `generated_by.framework`: the resolved framework (e.g. `openspec`, `gstack`, `ecc`, or `sdd` for manual)
-   - `generated_by.skill`: the resolved skill (e.g. `ff-change`, `plan-design-review`, `plan`)
+   - `generated_by.skill`: the resolved skill (e.g. `openspec-ff-change`, `plan-design-review`, `plan`)
    - `sdd_action`: `sdd-ff`
    - `timestamp`: current ISO 8601 timestamp
 

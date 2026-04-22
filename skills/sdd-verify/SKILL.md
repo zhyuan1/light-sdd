@@ -5,14 +5,14 @@ metadata:
   version: "0.1.0"
   sdd_action: verify
   delegates_to:
-    - "verify-change"
+    - "openspec-verify-change"
     - "verification-before-completion"
   overridable: true
 ---
 
 # sdd-verify
 
-Verify the implementation satisfies all spec acceptance criteria. Delegates to OpenSpec `verify-change` and Superpowers `verification-before-completion`, then produces coverage statistics.
+Verify the implementation satisfies all spec acceptance criteria. Delegates to OpenSpec `openspec-verify-change` and Superpowers `verification-before-completion`, then produces coverage statistics.
 
 ---
 
@@ -56,7 +56,7 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to O
 
 ### Step 1: Spec verification
 
-**Delegate to**: OpenSpec `verify-change`.
+**Delegate to**: OpenSpec `openspec-verify-change`.
 
 Provide to the delegate:
 - All specs from `specs/`.
@@ -90,7 +90,7 @@ Expect from the delegate:
 
 0. **Provenance stamp**: set the YAML frontmatter in the generated verification review:
    - `generated_by.framework`: the resolved frameworks for each step (e.g. `openspec` + `superpowers`, or `gstack` + `gstack`)
-   - `generated_by.skill`: the resolved skills for each step (e.g. `verify-change` + `verification-before-completion`, or `qa` + `benchmark`)
+   - `generated_by.skill`: the resolved skills for each step (e.g. `openspec-verify-change` + `verification-before-completion`, or `qa` + `benchmark`)
    - `sdd_action`: `sdd-verify`
    - `timestamp`: current ISO 8601 timestamp
 

@@ -5,8 +5,8 @@ metadata:
   version: "0.1.0"
   sdd_action: ship
   delegates_to:
-    - "sync-specs"
-    - "archive-change"
+    - "openspec-sync-specs"
+    - "openspec-archive-change"
     - "finishing-a-development-branch"
   overridable: true
 ---
@@ -49,14 +49,14 @@ Execute three steps sequentially. If any step fails, stop and report -- do not c
 
 ### Step 1: Sync specs
 
-**Delegate to**: OpenSpec `sync-specs`.
+**Delegate to**: OpenSpec `openspec-sync-specs`.
 
 - Sync finalized specs from `.sdd/changes/<change-name>/specs/` to the project's canonical spec location (typically `openspec/specs/` or as configured).
 - This ensures the project's living spec documentation stays up to date.
 
 ### Step 2: Archive change
 
-**Delegate to**: OpenSpec `archive-change`.
+**Delegate to**: OpenSpec `openspec-archive-change`.
 
 - Archive the change directory (move to `.sdd/changes/archive/` or tag as shipped, per OpenSpec convention).
 - The change artifacts are preserved for future reference but no longer active.
