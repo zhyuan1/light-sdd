@@ -10,7 +10,7 @@ metadata:
 
 # sdd-ship
 
-Finalize an SDD change through a 3-step orchestration: sync specs to canonical location, archive the change directory, and finish the development branch.
+Finalize an SDD change through a 3-step orchestration: sync specs to canonical location, archive the change directory, and finish the development branch. Delegates to the skills configured in `delegates.yaml`.
 
 ---
 
@@ -46,21 +46,20 @@ Execute three steps sequentially. If any step fails, stop and report -- do not c
 
 ### Step 1: Sync specs
 
-**Delegate to**: OpenSpec `openspec-sync-specs`.
+Invoke the sync delegate resolved by `delegates.yaml → sdd-ship → phases.sync` following `delegation-protocol.md`.
 
-- Sync finalized specs from `.sdd/changes/<change-name>/specs/` to the project's canonical spec location (typically `openspec/specs/` or as configured).
-- This ensures the project's living spec documentation stays up to date.
+- Sync finalized specs from `.sdd/changes/<change-name>/specs/` to the project's canonical spec location.
 
 ### Step 2: Archive change
 
-**Delegate to**: OpenSpec `openspec-archive-change`.
+Invoke the archive delegate resolved by `delegates.yaml → sdd-ship → phases.archive` following `delegation-protocol.md`.
 
-- Archive the change directory (move to `.sdd/changes/archive/` or tag as shipped, per OpenSpec convention).
+- Archive the change directory (move to `.sdd/changes/archive/` or tag as shipped, per the delegate's convention).
 - The change artifacts are preserved for future reference but no longer active.
 
 ### Step 3: Finish branch
 
-**Delegate to**: Superpowers `finishing-a-development-branch`.
+Invoke the finish delegate resolved by `delegates.yaml → sdd-ship → phases.finish` following `delegation-protocol.md`.
 
 - Present the user with integration options:
   1. Merge locally to base branch.
@@ -69,12 +68,8 @@ Execute three steps sequentially. If any step fails, stop and report -- do not c
   4. Discard the work.
 - Execute the chosen option with appropriate cleanup.
 
-### Override
-
-| Alternative | When to prefer |
-|---|---|
-| ECC `check` + manual git | When Superpowers is not installed |
-| Manual archive | When OpenSpec is not installed |
+> Fallback chain and alternative delegates are defined in `delegates.yaml → sdd-ship`.
+> Use `/sdd-use <profile>` to switch framework stacks.
 
 ---
 

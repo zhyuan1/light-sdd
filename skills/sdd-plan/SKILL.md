@@ -10,7 +10,7 @@ metadata:
 
 # sdd-plan
 
-Create a detailed, actionable execution plan for the next batch of tasks. Delegates to Superpowers' `writing-plans` skill for structured plan generation.
+Create a detailed, actionable execution plan for the next batch of tasks. Delegates to the skill configured in `delegates.yaml`.
 
 ---
 
@@ -54,7 +54,7 @@ Create a detailed, actionable execution plan for the next batch of tasks. Delega
 
 ## Core Execution
 
-**Default delegation**: invoke Superpowers `writing-plans`.
+Invoke the delegate resolved by `delegates.yaml → sdd-plan` following `delegation-protocol.md`.
 
 Provide to the delegate:
 - The target batch tasks from `tasks.md` (task titles, spec references, sizes).
@@ -71,21 +71,15 @@ Expect from the delegate:
 
 ### Transition suppression
 
-Superpowers `writing-plans` has built-in auto-transition logic: after the plan is complete, it presents an execution handoff prompting the user to choose between `subagent-driven-development` and `executing-plans`. **SDD must suppress this behavior.**
+Some delegates have built-in auto-transition logic that presents an execution handoff after plan generation. **SDD must suppress this behavior.**
 
-When invoking `writing-plans`, append this constraint to the delegation context:
-
-> **SDD OVERRIDE**: Do NOT invoke `subagent-driven-development`, `executing-plans`, or any other skill after plan generation. Do NOT present an execution handoff prompt. Your scope is limited to producing `plan.md`. Return control to SDD when the plan document is finalized. SDD controls the workflow -- the next step is `/sdd-code`, not an execution skill.
+Append the SDD OVERRIDE constraint from `delegates.yaml → sdd-plan → transition_suppression` to the delegation context.
 
 If the delegate presents an execution choice anyway, intercept and stop. Inform the user:
 > Plan complete. The delegate tried to auto-advance to execution -- SDD intercepted this. Run `/sdd-code` to continue the SDD workflow.
 
-### Skill override
-
-| Alternative | When to prefer |
-|---|---|
-| ECC `plan` / `think` | When Superpowers is not installed |
-| Manual | User wants to plan themselves |
+> Fallback chain and alternative delegates are defined in `delegates.yaml → sdd-plan`.
+> Use `/sdd-use <profile>` to switch framework stacks.
 
 ---
 
@@ -93,8 +87,8 @@ If the delegate presents an execution choice anyway, intercept and stop. Inform 
 
 0. **Provenance stamp**: update the YAML frontmatter in `plan.md` with the
    framework and skill resolved during Pre-check delegation:
-   - `generated_by.framework`: the resolved framework (e.g. `superpowers`, `gstack`, `ecc`, or `sdd` for manual)
-   - `generated_by.skill`: the resolved skill (e.g. `writing-plans`, `autoplan`, `plan`)
+   - `generated_by.framework`: the resolved framework
+   - `generated_by.skill`: the resolved skill
    - `sdd_action`: `sdd-plan`
    - `timestamp`: current ISO 8601 timestamp
 

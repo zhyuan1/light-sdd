@@ -10,7 +10,7 @@ metadata:
 
 # sdd-review-code
 
-Perform a two-phase code review: first check spec compliance (SDD self-logic), then delegate code quality review to Superpowers' `requesting-code-review` skill.
+Perform a two-phase code review: first check spec compliance (SDD self-logic), then delegate code quality review to the skill configured in `delegates.yaml`.
 
 ---
 
@@ -65,7 +65,7 @@ Produce a Phase 1 findings list:
 
 ### Phase 2: Code quality review
 
-**Delegate to**: Superpowers `requesting-code-review`.
+Invoke the Phase 2 delegate resolved by `delegates.yaml → sdd-review-code → phases.phase2` following `delegation-protocol.md`.
 
 Provide to the delegate:
 - The list of changed files (or git diff SHAs).
@@ -75,12 +75,8 @@ Provide to the delegate:
 Expect from the delegate:
 - Code quality feedback covering: style, patterns, performance, security, error handling, test coverage.
 
-### Override
-
-| Alternative | When to prefer |
-|---|---|
-| ECC `check` | When Superpowers is not installed |
-| Manual review | User wants to review code themselves |
+> Fallback chain and alternative delegates are defined in `delegates.yaml → sdd-review-code`.
+> Use `/sdd-use <profile>` to switch framework stacks.
 
 ---
 

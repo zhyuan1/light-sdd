@@ -10,7 +10,7 @@ metadata:
 
 # sdd-brainstorm
 
-Facilitate structured, divergent exploration before committing to an approach. Delegates to Superpowers' `brainstorming` skill for Socratic-style idea generation.
+Facilitate structured, divergent exploration before committing to an approach. Delegates to the skill configured in `delegates.yaml`.
 
 ---
 
@@ -49,7 +49,7 @@ Facilitate structured, divergent exploration before committing to an approach. D
 
 ## Core Execution
 
-**Default delegation**: invoke Superpowers `brainstorming`.
+Invoke the delegate resolved by `delegates.yaml → sdd-brainstorm` following `delegation-protocol.md`.
 
 Provide to the delegate:
 - The user's problem description or feature request.
@@ -65,21 +65,12 @@ Expect from the delegate:
 
 ### Transition suppression
 
-Superpowers `brainstorming` has built-in auto-transition logic: after the user approves the spec, it automatically invokes `writing-plans`. **SDD must suppress this behavior.**
+Some delegates have built-in auto-transition logic that advances to a planning skill after completion. **SDD must suppress this behavior.**
 
-When invoking `brainstorming`, append this constraint to the delegation context:
-
-> **SDD OVERRIDE**: Do NOT invoke `writing-plans` or any other skill after brainstorming completes. Your scope is limited to producing `brainstorm.md`. Return control to SDD when the brainstorm document is finalized. SDD controls the workflow -- the next step is `/sdd-propose`, not `writing-plans`.
+Append the SDD OVERRIDE constraint from `delegates.yaml → sdd-brainstorm → transition_suppression` to the delegation context.
 
 If the delegate attempts to transition anyway, intercept and stop. Inform the user:
 > Brainstorm complete. The delegate tried to auto-advance to planning -- SDD intercepted this. Run `/sdd-propose` to continue the SDD workflow.
-
-### Skill override
-
-| Alternative | When to prefer |
-|---|---|
-| ECC `think` | When Superpowers is not installed |
-| Manual | User wants to brainstorm themselves and just needs the template |
 
 ---
 
@@ -87,8 +78,8 @@ If the delegate attempts to transition anyway, intercept and stop. Inform the us
 
 0. **Provenance stamp**: update the YAML frontmatter in `brainstorm.md` with the
    framework and skill resolved during Pre-check delegation (step 5):
-   - `generated_by.framework`: the resolved framework (e.g. `superpowers`, `gstack`, `ecc`, or `sdd` for manual)
-   - `generated_by.skill`: the resolved skill (e.g. `brainstorming`, `office-hours`, `think`)
+   - `generated_by.framework`: the resolved framework
+   - `generated_by.skill`: the resolved skill
    - `sdd_action`: `sdd-brainstorm`
    - `timestamp`: current ISO 8601 timestamp
 

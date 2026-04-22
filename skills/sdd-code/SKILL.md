@@ -10,7 +10,7 @@ metadata:
 
 # sdd-code
 
-Execute implementation tasks following TDD discipline. Delegates to Superpowers' `test-driven-development`, `executing-plans`, and `systematic-debugging` skills as needed.
+Execute implementation tasks following TDD discipline. Delegates to the skills configured in `delegates.yaml`.
 
 ---
 
@@ -49,14 +49,16 @@ Execute implementation tasks following TDD discipline. Delegates to Superpowers'
 
 ## Core Execution
 
-### Primary delegation: `executing-plans`
+Invoke delegates resolved by `delegates.yaml → sdd-code` following `delegation-protocol.md` (partial availability mode).
 
-If `plan.md` exists, invoke `executing-plans` with:
+### Primary delegation: execution
+
+If `plan.md` exists, invoke the primary execution delegate with:
 - The current batch detail from `plan.md`.
 - The referenced spec context for each task.
 - Instruction to follow TDD discipline (see below).
 
-### TDD discipline: `test-driven-development`
+### TDD discipline
 
 For each task, enforce the RED-GREEN-REFACTOR cycle:
 1. **RED**: Write a failing test based on the spec's Acceptance Criteria and Behavior.
@@ -65,43 +67,31 @@ For each task, enforce the RED-GREEN-REFACTOR cycle:
 
 This applies whether executing via `executing-plans` or directly from `tasks.md`.
 
-### Error recovery: `systematic-debugging`
+### Error recovery
 
 If tests fail unexpectedly or implementation encounters errors:
-- Invoke `systematic-debugging` to find root cause before attempting fixes.
+- Invoke the debugging delegate to find root cause before attempting fixes.
 - Do not apply symptom fixes -- always trace to root cause.
 
 ### Transition suppression
 
-Superpowers `executing-plans` has two built-in auto-transitions that conflict with SDD:
+Some delegates have built-in auto-transitions that conflict with SDD workflow control. **SDD must suppress these behaviors.**
 
-1. **Pre-transition**: it automatically invokes `using-git-worktrees` to create an isolated workspace before starting.
-2. **Post-transition**: after all tasks complete, it automatically invokes `finishing-a-development-branch` to merge/PR/discard.
-
-**SDD must suppress both behaviors.**
-
-When invoking `executing-plans`, append this constraint to the delegation context:
-
-> **SDD OVERRIDE**: Do NOT invoke `using-git-worktrees` before starting. Do NOT invoke `finishing-a-development-branch` after tasks complete. Your scope is limited to executing the tasks in the current batch and updating their status. Return control to SDD when the batch is done. SDD controls workspace management and branch finishing -- these are handled by `/sdd-ship`.
+Append the SDD OVERRIDE constraint from `delegates.yaml → sdd-code → transition_suppression` to the delegation context.
 
 If the delegate attempts either transition, intercept and stop. Inform the user:
 > Task execution paused. The delegate tried to auto-advance to branch finishing -- SDD intercepted this. Run `/sdd-review-code` or `/sdd-verify` to continue the SDD workflow.
 
-### Skill override
-
-| Alternative | When to prefer |
-|---|---|
-| ECC `tdd` | When Superpowers is not installed |
-| ECC `hunt` | Alternative to `systematic-debugging` |
-| Direct coding | User explicitly opts out of TDD for this task |
+> Fallback chain and alternative delegates are defined in `delegates.yaml → sdd-code`.
+> Use `/sdd-use <profile>` to switch framework stacks.
 
 ---
 
 ## Post-check
 
 0. **Provenance stamp**: when updating `tasks.md` (marking tasks `[x]`), ensure the frontmatter `generated_by` fields are preserved. Do not overwrite existing provenance — append update tracking:
-   - `last_updated_by.framework`: the resolved framework (e.g. `superpowers`, `gstack`, `ecc`, or `sdd` for manual)
-   - `last_updated_by.skill`: the resolved skill (e.g. `test-driven-development`, `design-html`, `tdd`)
+   - `last_updated_by.framework`: the resolved framework
+   - `last_updated_by.skill`: the resolved skill
    - `last_updated_by.sdd_action`: `sdd-code`
    - `last_updated_at`: current ISO 8601 timestamp
 

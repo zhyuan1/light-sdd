@@ -10,7 +10,7 @@ metadata:
 
 # sdd-verify
 
-Verify the implementation satisfies all spec acceptance criteria. Delegates to OpenSpec `openspec-verify-change` and Superpowers `verification-before-completion`, then produces coverage statistics.
+Verify the implementation satisfies all spec acceptance criteria. Delegates to the skills configured in `delegates.yaml`, then produces coverage statistics.
 
 ---
 
@@ -54,7 +54,7 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to O
 
 ### Step 1: Spec verification
 
-**Delegate to**: OpenSpec `openspec-verify-change`.
+Invoke the Step 1 delegate resolved by `delegates.yaml → sdd-verify → phases.step1` following `delegation-protocol.md`.
 
 Provide to the delegate:
 - All specs from `specs/`.
@@ -66,7 +66,7 @@ Expect from the delegate:
 
 ### Step 2: Evidence verification
 
-**Delegate to**: Superpowers `verification-before-completion`.
+Invoke the Step 2 delegate resolved by `delegates.yaml → sdd-verify → phases.step2` following `delegation-protocol.md`.
 
 Provide to the delegate:
 - The verification results from Step 1.
@@ -75,20 +75,16 @@ Provide to the delegate:
 Expect from the delegate:
 - An evidence-backed assessment: each AC is either verified-with-evidence, failed, or unverifiable.
 
-### Override
-
-| Alternative | When to prefer |
-|---|---|
-| ECC `check` / `verification-loop` | When OpenSpec or Superpowers is not installed |
-| Manual verification | User wants to verify manually |
+> Fallback chain and alternative delegates are defined in `delegates.yaml → sdd-verify`.
+> Use `/sdd-use <profile>` to switch framework stacks.
 
 ---
 
 ## Post-check
 
 0. **Provenance stamp**: set the YAML frontmatter in the generated verification review:
-   - `generated_by.framework`: the resolved frameworks for each step (e.g. `openspec` + `superpowers`, or `gstack` + `gstack`)
-   - `generated_by.skill`: the resolved skills for each step (e.g. `openspec-verify-change` + `verification-before-completion`, or `qa` + `benchmark`)
+   - `generated_by.framework`: the resolved frameworks for each step
+   - `generated_by.skill`: the resolved skills for each step
    - `sdd_action`: `sdd-verify`
    - `timestamp`: current ISO 8601 timestamp
 
