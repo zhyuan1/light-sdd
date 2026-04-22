@@ -54,9 +54,14 @@ Create a detailed, actionable execution plan for the next batch of tasks. Delega
 
 ## Core Execution
 
-Invoke the delegate resolved by `delegates.yaml → sdd-plan` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the delegate resolved in Pre-check step 7. This is a mandatory tool call — do not generate the plan inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-skill-name>", args: "<context>" })
+```
+
+Pass as args:
+- Any `transition_suppression.override_text` from `delegates.yaml → sdd-plan` for the resolved delegate (prepend this so it is seen first).
 - The target batch tasks from `tasks.md` (task titles, spec references, sizes).
 - The full content of each referenced spec (Interfaces, Behavior, Acceptance Criteria).
 - Contents of `design.md` if available.
@@ -73,7 +78,7 @@ Expect from the delegate:
 
 Some delegates have built-in auto-transition logic that presents an execution handoff after plan generation. **SDD must suppress this behavior.**
 
-Append the SDD OVERRIDE constraint from `delegates.yaml → sdd-plan → transition_suppression` to the delegation context.
+The `transition_suppression.override_text` from `delegates.yaml → sdd-plan` must be prepended in the args passed to the Skill tool call above.
 
 If the delegate presents an execution choice anyway, intercept and stop. Inform the user:
 > Plan complete. The delegate tried to auto-advance to execution -- SDD intercepted this. Run `/sdd-code` to continue the SDD workflow.

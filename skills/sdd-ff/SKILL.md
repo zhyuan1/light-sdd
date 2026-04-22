@@ -55,9 +55,13 @@ Fast-forward through the artifact dependency chain by batch-generating all missi
 
 ## Core Execution
 
-Invoke the delegate resolved by `delegates.yaml → sdd-ff` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the delegate resolved in Pre-check step 6. This is a mandatory tool call — do not generate the artifacts inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-skill-name>", args: "<context>" })
+```
+
+Pass as args:
 - Contents of `proposal.md`.
 - The list of missing artifacts to generate.
 - The corresponding templates (`templates/spec.md`, `templates/tasks.md`) as format guides.

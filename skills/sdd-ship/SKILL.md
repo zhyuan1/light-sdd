@@ -46,27 +46,43 @@ Execute three steps sequentially. If any step fails, stop and report -- do not c
 
 ### Step 1: Sync specs
 
-Invoke the sync delegate resolved by `delegates.yaml → sdd-ship → phases.sync` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the sync delegate resolved in Pre-check step 5. This is a mandatory tool call.
 
-- Sync finalized specs from `.sdd/changes/<change-name>/specs/` to the project's canonical spec location.
+```
+Skill({ skill: "<resolved-sync-skill-name>", args: "<context>" })
+```
+
+Pass as args:
+- The change name and the source specs path: `.sdd/changes/<change-name>/specs/`.
+- Instruction: sync finalized specs to the project's canonical spec location.
 
 ### Step 2: Archive change
 
-Invoke the archive delegate resolved by `delegates.yaml → sdd-ship → phases.archive` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the archive delegate resolved in Pre-check step 5. This is a mandatory tool call.
 
-- Archive the change directory (move to `.sdd/changes/archive/` or tag as shipped, per the delegate's convention).
-- The change artifacts are preserved for future reference but no longer active.
+```
+Skill({ skill: "<resolved-archive-skill-name>", args: "<context>" })
+```
+
+Pass as args:
+- The change name and the change directory path.
+- Instruction: archive the change directory (move to `.sdd/changes/archive/` or tag as shipped, per the delegate's convention). The change artifacts are preserved for future reference but no longer active.
 
 ### Step 3: Finish branch
 
-Invoke the finish delegate resolved by `delegates.yaml → sdd-ship → phases.finish` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the finish delegate resolved in Pre-check step 5. This is a mandatory tool call.
 
-- Present the user with integration options:
+```
+Skill({ skill: "<resolved-finish-skill-name>", args: "<context>" })
+```
+
+Pass as args:
+- The change name and current branch name.
+- Instruction: present the user with integration options and execute the chosen option:
   1. Merge locally to base branch.
   2. Push and create a pull request.
   3. Preserve the branch for later.
   4. Discard the work.
-- Execute the chosen option with appropriate cleanup.
 
 > Fallback chain and alternative delegates are defined in `delegates.yaml → sdd-ship`.
 > Use `/sdd-use <profile>` to switch framework stacks.

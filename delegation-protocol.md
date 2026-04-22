@@ -134,3 +134,39 @@ Some delegates have built-in auto-transition behavior that conflicts with SDD's 
 4. Inform the user which SDD command to run next.
 
 Transition suppression directives are action-specific and stay inline in each SKILL.md's "Core Execution" section. The `delegates.yaml` records the data (which skills to suppress, what override text to use); the SKILL.md describes the behavioral response to suppression violations.
+
+---
+
+## 8. Skill Tool Invocation
+
+**Delegation means calling the Skill tool** — not narrating what the delegate "would do", not performing the work inline, and not entering manual mode while a delegate is available.
+
+### How to invoke a resolved delegate
+
+Once a delegate skill name has been resolved (Section 2, 3, or 4), invoke it using the Skill tool with the resolved skill name as the `skill` parameter:
+
+```
+Skill({ skill: "<resolved-skill-name>", args: "<context string>" })
+```
+
+- `skill`: the resolved skill name from `delegates.yaml` (e.g. `brainstorming`, `writing-plans`, `executing-plans`, `requesting-code-review`, `openspec-ff-change`, `openspec-verify-change`, `verification-before-completion`, `finishing-a-development-branch`).
+- `args`: a context string summarizing the task, relevant file contents, and any SDD OVERRIDE directives from `transition_suppression`.
+
+### What to pass as args
+
+Construct the args string to include:
+1. The action goal (e.g. "Brainstorm approaches for: remove-ckv-dependency").
+2. Key context already gathered in Pre-check (change name, spec summaries, KB content, template format).
+3. Any `transition_suppression.override_text` from `delegates.yaml` for this delegate — prepend it so the delegate sees the SDD OVERRIDE before any other instruction.
+
+### Skill tool is mandatory when a delegate is found
+
+Do **not** skip the Skill tool call and perform the work yourself, even if you believe you could produce the same result. The purpose of delegation is to invoke the specialized skill exactly as configured. If the skill is available, call it.
+
+### Manual mode is the fallback, not the default
+
+Manual mode (performing the work directly using the template) is only entered when:
+- All entries in `primary` were searched and not found, AND
+- All entries in `fallback` were searched and not found.
+
+If any delegate was found in Section 2 / 3 / 4, call it via the Skill tool. Never silently fall through to manual mode when a delegate is available.

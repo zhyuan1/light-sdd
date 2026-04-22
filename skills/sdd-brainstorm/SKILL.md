@@ -49,9 +49,14 @@ Facilitate structured, divergent exploration before committing to an approach. D
 
 ## Core Execution
 
-Invoke the delegate resolved by `delegates.yaml → sdd-brainstorm` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the delegate resolved in Pre-check step 6. This is a mandatory tool call — do not perform the brainstorming work inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-skill-name>", args: "<context>" })
+```
+
+Pass as args:
+- Any `transition_suppression.override_text` from `delegates.yaml → sdd-brainstorm` for the resolved delegate (prepend this so it is seen first).
 - The user's problem description or feature request.
 - Existing project context (architecture, tech stack, constraints).
 - The `brainstorm.md` template as the target output format.
@@ -67,7 +72,7 @@ Expect from the delegate:
 
 Some delegates have built-in auto-transition logic that advances to a planning skill after completion. **SDD must suppress this behavior.**
 
-Append the SDD OVERRIDE constraint from `delegates.yaml → sdd-brainstorm → transition_suppression` to the delegation context.
+The `transition_suppression.override_text` from `delegates.yaml → sdd-brainstorm` must be prepended in the args passed to the Skill tool call above.
 
 If the delegate attempts to transition anyway, intercept and stop. Inform the user:
 > Brainstorm complete. The delegate tried to auto-advance to planning -- SDD intercepted this. Run `/sdd-propose` to continue the SDD workflow.

@@ -54,9 +54,13 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to t
 
 ### Step 1: Spec verification
 
-Invoke the Step 1 delegate resolved by `delegates.yaml → sdd-verify → phases.step1` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the Step 1 delegate resolved in Pre-check step 5. This is a mandatory tool call — do not perform the spec verification inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-step1-skill-name>", args: "<context>" })
+```
+
+Pass as args:
 - All specs from `specs/`.
 - The implementation file mapping (which files implement which capability).
 - The collected acceptance criteria checklist.
@@ -66,9 +70,13 @@ Expect from the delegate:
 
 ### Step 2: Evidence verification
 
-Invoke the Step 2 delegate resolved by `delegates.yaml → sdd-verify → phases.step2` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the Step 2 delegate resolved in Pre-check step 5. This is a mandatory tool call — do not perform the evidence check inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-step2-skill-name>", args: "<context>" })
+```
+
+Pass as args:
 - The verification results from Step 1.
 - Instruction: for every "pass" claim, verify there is concrete evidence (a passing test, a successful command output, observable behavior). No "should work" or "probably fine" -- evidence only.
 

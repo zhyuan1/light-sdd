@@ -49,12 +49,17 @@ Execute implementation tasks following TDD discipline. Delegates to the skills c
 
 ## Core Execution
 
-Invoke delegates resolved by `delegates.yaml → sdd-code` following `delegation-protocol.md` (partial availability mode).
+**Use the Skill tool** to invoke each delegate resolved in Pre-check step 6 (partial availability mode). These are mandatory tool calls — do not perform the implementation work inline.
+
+```
+Skill({ skill: "<resolved-skill-name>", args: "<context>" })
+```
 
 ### Primary delegation: execution
 
-If `plan.md` exists, invoke the primary execution delegate with:
-- The current batch detail from `plan.md`.
+**Use the Skill tool** to invoke the primary execution delegate (e.g. `executing-plans`). Pass as args:
+- Any `transition_suppression.override_text` from `delegates.yaml → sdd-code` for the resolved delegate (prepend this so it is seen first).
+- The current batch detail from `plan.md` (if it exists), or the next unchecked task from `tasks.md`.
 - The referenced spec context for each task.
 - Instruction to follow TDD discipline (see below).
 
@@ -70,14 +75,14 @@ This applies whether executing via `executing-plans` or directly from `tasks.md`
 ### Error recovery
 
 If tests fail unexpectedly or implementation encounters errors:
-- Invoke the debugging delegate to find root cause before attempting fixes.
+- **Use the Skill tool** to invoke the debugging delegate (e.g. `systematic-debugging`) to find root cause before attempting fixes.
 - Do not apply symptom fixes -- always trace to root cause.
 
 ### Transition suppression
 
 Some delegates have built-in auto-transitions that conflict with SDD workflow control. **SDD must suppress these behaviors.**
 
-Append the SDD OVERRIDE constraint from `delegates.yaml → sdd-code → transition_suppression` to the delegation context.
+The `transition_suppression.override_text` from `delegates.yaml → sdd-code` must be prepended in the args passed to the Skill tool call above.
 
 If the delegate attempts either transition, intercept and stop. Inform the user:
 > Task execution paused. The delegate tried to auto-advance to branch finishing -- SDD intercepted this. Run `/sdd-review-code` or `/sdd-verify` to continue the SDD workflow.

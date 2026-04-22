@@ -50,9 +50,13 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
 
 ## Core Execution
 
-Invoke the delegate resolved by `delegates.yaml → sdd-propose` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the delegate resolved in Pre-check step 6. This is a mandatory tool call — do not perform the proposal work inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-skill-name>", args: "<context>" })
+```
+
+Pass as args:
 - The change name.
 - Contents of `brainstorm.md` (if it exists) as prior context.
 - The user's feature description or problem statement.

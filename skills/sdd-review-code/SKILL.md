@@ -65,9 +65,13 @@ Produce a Phase 1 findings list:
 
 ### Phase 2: Code quality review
 
-Invoke the Phase 2 delegate resolved by `delegates.yaml → sdd-review-code → phases.phase2` following `delegation-protocol.md`.
+**Use the Skill tool** to invoke the Phase 2 delegate resolved in Pre-check step 6. This is a mandatory tool call — do not perform the code quality review inline.
 
-Provide to the delegate:
+```
+Skill({ skill: "<resolved-phase2-skill-name>", args: "<context>" })
+```
+
+Pass as args:
 - The list of changed files (or git diff SHAs).
 - The relevant specs as context for what the code should accomplish.
 - Phase 1 findings as additional review context.
