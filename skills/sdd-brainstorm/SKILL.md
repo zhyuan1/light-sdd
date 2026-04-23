@@ -74,6 +74,8 @@ Some delegates have built-in auto-transition logic that advances to a planning s
 
 The `transition_suppression.override_text` from `delegates.yaml → sdd-brainstorm` must be prepended in the args passed to the Skill tool call above.
 
+**SDD OVERRIDE**: Do NOT invoke `writing-plans` or any other skill after brainstorming completes. Your scope is limited to producing `brainstorm.md`. Return control to SDD when the brainstorm document is finalized. SDD controls the workflow -- the next step is `/sdd-propose`, not `writing-plans`.
+
 If the delegate attempts to transition anyway, intercept and stop. Inform the user:
 > Brainstorm complete. The delegate tried to auto-advance to planning -- SDD intercepted this. Run `/sdd-propose` to continue the SDD workflow.
 

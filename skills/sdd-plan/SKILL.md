@@ -80,6 +80,8 @@ Some delegates have built-in auto-transition logic that presents an execution ha
 
 The `transition_suppression.override_text` from `delegates.yaml → sdd-plan` must be prepended in the args passed to the Skill tool call above.
 
+**SDD OVERRIDE**: Do NOT invoke `subagent-driven-development`, `executing-plans`, or any other skill after plan generation. Do NOT present an execution handoff prompt. Your scope is limited to producing `plan.md`. Return control to SDD when the plan document is finalized. SDD controls the workflow -- the next step is `/sdd-code`, not an execution skill.
+
 If the delegate presents an execution choice anyway, intercept and stop. Inform the user:
 > Plan complete. The delegate tried to auto-advance to execution -- SDD intercepted this. Run `/sdd-code` to continue the SDD workflow.
 

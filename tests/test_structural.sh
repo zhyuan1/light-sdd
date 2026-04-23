@@ -488,34 +488,42 @@ t1_14() {
   done
 
   # Check every yaml_suppressed is in md_suppressed
-  for skill in "${yaml_suppressed[@]}"; do
-    local found=false
-    for md_skill in "${md_suppressed[@]}"; do
-      if [ "$skill" = "$md_skill" ]; then
-        found=true
-        break
+  if [ ${#yaml_suppressed[@]} -gt 0 ]; then
+    for skill in "${yaml_suppressed[@]}"; do
+      local found=false
+      if [ ${#md_suppressed[@]} -gt 0 ]; then
+        for md_skill in "${md_suppressed[@]}"; do
+          if [ "$skill" = "$md_skill" ]; then
+            found=true
+            break
+          fi
+        done
+      fi
+      if ! $found; then
+        fail "$label -- $skill has transition_suppression in delegates.yaml but no SDD OVERRIDE in SKILL.md"
+        ok=false
       fi
     done
-    if ! $found; then
-      fail "$label -- $skill has transition_suppression in delegates.yaml but no SDD OVERRIDE in SKILL.md"
-      ok=false
-    fi
-  done
+  fi
 
   # Check every md_suppressed is in yaml_suppressed
-  for skill in "${md_suppressed[@]}"; do
-    local found=false
-    for yaml_skill in "${yaml_suppressed[@]}"; do
-      if [ "$skill" = "$yaml_skill" ]; then
-        found=true
-        break
+  if [ ${#md_suppressed[@]} -gt 0 ]; then
+    for skill in "${md_suppressed[@]}"; do
+      local found=false
+      if [ ${#yaml_suppressed[@]} -gt 0 ]; then
+        for yaml_skill in "${yaml_suppressed[@]}"; do
+          if [ "$skill" = "$yaml_skill" ]; then
+            found=true
+            break
+          fi
+        done
+      fi
+      if ! $found; then
+        fail "$label -- $skill has SDD OVERRIDE in SKILL.md but no transition_suppression in delegates.yaml"
+        ok=false
       fi
     done
-    if ! $found; then
-      fail "$label -- $skill has SDD OVERRIDE in SKILL.md but no transition_suppression in delegates.yaml"
-      ok=false
-    fi
-  done
+  fi
 
   if $ok; then pass "$label"; fi
 }

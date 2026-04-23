@@ -14,16 +14,22 @@ SDD skills delegate core work to external framework skills (Superpowers, OpenSpe
 
 Search for `delegates.yaml` in the following locations, in order. Stop at the first file found.
 
-1. `.claude/skills/sdd-templates/delegates.yaml` — project-level install
-2. `.claude-internal/skills/sdd-templates/delegates.yaml` — project-level private install
-3. `~/.claude/skills/sdd-templates/delegates.yaml` — user-level install
-4. `~/.claude-internal/skills/sdd-templates/delegates.yaml` — user-level private install
+> **Note**: `{config_dir}` refers to the CLI-specific configuration directory. Known values:
+> - `.claude` / `.claude-internal` (Claude Code)
+> - `.codebuddy` (CodeBuddy)
+>
+> Search **all** known config directory names at each level. The installer auto-detects which CLI is in use.
+
+1. `.{config_dir}/skills/sdd-templates/delegates.yaml` — project-level install
+2. `.{config_dir}-internal/skills/sdd-templates/delegates.yaml` — project-level private install
+3. `~/.{config_dir}/skills/sdd-templates/delegates.yaml` — user-level install
+4. `~/.{config_dir}-internal/skills/sdd-templates/delegates.yaml` — user-level private install
 
 **If found**: load it and proceed to Section 0.
 
 **If not found at any location**: stop immediately and report:
 > `delegates.yaml` not found. Is light-sdd installed?
-> Checked: `.claude/skills/sdd-templates/`, `.claude-internal/skills/sdd-templates/`, `~/.claude/skills/sdd-templates/`, `~/.claude-internal/skills/sdd-templates/`
+> Checked project-level and user-level config directories for all known CLIs.
 > Run `./install.sh` (from the light-sdd repo) to install.
 
 **Do not enter inline/manual mode as a substitute for a missing `delegates.yaml`.**
@@ -58,16 +64,18 @@ Before resolving any delegate skill, determine the active profile:
 
 When searching for a delegate skill, check these locations in order:
 
-1. `~/.claude/skills/` (user-level install)
-2. `~/.claude-internal/skills/` (user-level private install)
-3. `.claude/skills/` (project-level install)
-4. `.claude-internal/skills/` (project-level private install)
-5. Any project-configured skill paths (from `.claude/settings.json` or MCP configuration)
+> **Note**: `{config_dir}` is the CLI-specific directory name (e.g., `claude`, `codebuddy`). Check **all** known CLI directory names at each level.
+
+1. `~/.{config_dir}/skills/` (user-level install)
+2. `~/.{config_dir}-internal/skills/` (user-level private install)
+3. `.{config_dir}/skills/` (project-level install)
+4. `.{config_dir}-internal/skills/` (project-level private install)
+5. Any project-configured skill paths (from CLI settings or MCP configuration)
 
 For each search path, attempt to locate the skill using **two name strategies** in order:
 
-1. **Namespaced path**: `{search-path}/{framework}/{skill}/SKILL.md` — used when skills are organized by framework subdirectory (e.g., `~/.claude/skills/superpowers/brainstorming/SKILL.md`).
-2. **Flat path**: `{search-path}/{skill}/SKILL.md` — used when skills are installed in a flat namespace regardless of framework (e.g., `~/.claude-internal/skills/brainstorming/SKILL.md`).
+1. **Namespaced path**: `{search-path}/{framework}/{skill}/SKILL.md` — used when skills are organized by framework subdirectory (e.g., `~/.codebuddy/skills/superpowers/brainstorming/SKILL.md`).
+2. **Flat path**: `{search-path}/{skill}/SKILL.md` — used when skills are installed in a flat namespace regardless of framework (e.g., `~/.claude/skills/brainstorming/SKILL.md`).
 
 A skill is "found" if its `SKILL.md` exists at **either** path in **any** search location. Stop at the first match.
 

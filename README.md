@@ -1,6 +1,6 @@
 # light-sdd
 
-Lightweight, composable, pluggable Spec-Driven Development workflow for Claude Code.
+Lightweight, composable, pluggable Spec-Driven Development workflow for AI coding assistants (Claude Code, CodeBuddy, etc.).
 
 SDD is a thin orchestration layer. It does not implement core capabilities -- it delegates to battle-tested skills from OpenSpec, Superpowers, ECC, or any framework you choose.
 
@@ -30,7 +30,7 @@ Each action skill follows a three-part structure:
 ## Installation
 
 ```bash
-# User-level (all projects)
+# User-level (all projects -- auto-detects CLI config directory)
 ./install.sh
 
 # With Chinese templates
@@ -39,11 +39,11 @@ Each action skill follows a three-part structure:
 # Project-level (current project only)
 ./install.sh --project
 
-# Custom target directory
-./install.sh --target .claude-internal
+# Explicit target directory
+./install.sh --target ~/.codebuddy
 
 # Combine options
-./install.sh --target .claude-internal --lang zh-CN
+./install.sh --target ~/.codebuddy --lang zh-CN
 
 # Verify installation
 ./install.sh --check
@@ -67,26 +67,29 @@ SDD delegates to these frameworks by default:
 
 Install only what you use. SDD detects availability at runtime and degrades gracefully -- missing frameworks trigger fallback or manual mode, not errors.
 
+> **Multi-CLI support**: The installer auto-detects your CLI tool. It checks for `~/.codebuddy`, `~/.claude`, etc. and installs to the first one found. Use `--target` to override. In the examples below, replace `~/<config_dir>/skills/` with your CLI's config path (e.g. `~/.codebuddy/skills/` or `~/.claude/skills/`).
+
 #### OpenSpec
 
 ```bash
 npm install -g @fission-ai/openspec
 
-# Initialize skill files into ~/.claude/skills/ (required -- CLI alone is not enough)
+# Initialize skill files into your CLI's skills directory
 openspec init --tools claude
 
 # Verify -- these skill files should now be present
-ls ~/.claude/skills/ | grep -E "continue-change|ff-change|sync-specs|verify-change|archive-change"
+# (path depends on your CLI: ~/.claude/skills/, ~/.codebuddy/skills/, etc.)
+ls ~/<config_dir>/skills/ | grep -E "continue-change|ff-change|sync-specs|verify-change|archive-change"
 ```
 
 #### Superpowers
 
 ```bash
 git clone https://github.com/obra/superpowers
-cp -r superpowers/skills/* ~/.claude/skills/
+cp -r superpowers/skills/* ~/<config_dir>/skills/
 
 # Verify -- these skill files should now be present
-ls ~/.claude/skills/ | grep -E "brainstorming|writing-plans|executing-plans"
+ls ~/<config_dir>/skills/ | grep -E "brainstorming|writing-plans|executing-plans"
 ```
 
 #### ECC (Everything Claude Code)
@@ -96,10 +99,10 @@ ECC is optional -- used only as a fallback when Superpowers is not installed.
 ```bash
 git clone https://github.com/badass-courses/everything-claude-code
 cd everything-claude-code
-./install.sh          # installs skills, agents, commands to ~/.claude/
+./install.sh          # installs skills, agents, commands
 
 # Verify
-ls ~/.claude/skills/ | grep -E "^think$|^check$|^plan$|^hunt$"
+ls ~/<config_dir>/skills/ | grep -E "^think$|^check$|^plan$|^hunt$"
 ```
 
 #### gstack
@@ -107,10 +110,10 @@ ls ~/.claude/skills/ | grep -E "^think$|^check$|^plan$|^hunt$"
 gstack is only needed if you switch to the `gstack` profile via `/sdd-use gstack`.
 
 ```bash
-git clone https://github.com/garrytan/gstack ~/.claude/skills/gstack
+git clone https://github.com/garrytan/gstack ~/<config_dir>/skills/gstack
 
 # Verify -- these skill files should now be present
-ls ~/.claude/skills/gstack | grep -E "brainstorming|office-hours|review|ship|qa"
+ls ~/<config_dir>/skills/gstack | grep -E "brainstorming|office-hours|review|ship|qa"
 ```
 
 > **Note**: gstack requires [Bun](https://bun.sh) (v1.0+). Install with `curl -fsSL https://bun.sh/install | bash`.
@@ -277,7 +280,7 @@ All artifacts live in `.sdd/changes/<change-name>/`. Progress is inferred from w
 
 ### Automatic Fallback
 
-Every delegating action includes a **Delegation availability check** in its Pre-check phase. It searches for the target skill in the standard skill paths (`~/.claude/skills/`, `~/.claude-internal/skills/`, `.claude/skills/`, project-configured paths). If the target is not found:
+Every delegating action includes a **Delegation availability check** in its Pre-check phase. It searches for the target skill in the standard skill paths (`~/{config_dir}/skills/`, `~/{config_dir}-internal/skills/`, `.{config_dir}/skills/`, project-configured paths) for all known CLI directory names. If the target is not found:
 
 1. Try the listed fallback skill (e.g., ECC `think` instead of Superpowers `brainstorming`)
 2. If fallback also missing, proceed in manual mode (SDD guides the user through the template directly)

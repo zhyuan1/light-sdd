@@ -15,31 +15,49 @@ PROTOCOL_SRC="$SCRIPT_DIR/delegation-protocol.md"
 SDD_REPO="https://github.com/zhyuan1/light-sdd.git"
 SDD_LOCAL_VERSION=$(grep '^version:' "$SCHEMA_SRC" 2>/dev/null | awk '{print $2}' | tr -d '"' || echo "unknown")
 
-# Default install root: ~/.claude
+# Known CLI config directory names (checked in order)
+KNOWN_CLI_DIRS=(".codebuddy" ".claude" ".claude-internal")
+
+# Detect the CLI config directory for the current environment
+detect_cli_config_dir() {
+  local base="$1"  # e.g. $HOME for user-level, "." for project-level
+  for dir in "${KNOWN_CLI_DIRS[@]}"; do
+    if [ -d "$base/$dir" ]; then
+      echo "$base/$dir"
+      return
+    fi
+  done
+  # Default to .claude for backwards compatibility
+  echo "$base/.claude"
+}
+
+# Default install root: auto-detected from ~/.codebuddy or ~/.claude
 # Skills -> <root>/skills/, Commands -> <root>/commands/
-INSTALL_ROOT="${SDD_INSTALL_ROOT:-$HOME/.claude}"
+INSTALL_ROOT="${SDD_INSTALL_ROOT:-$(detect_cli_config_dir "$HOME")}"
 LANG_CHOICE="en"
 
 usage() {
   cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
 
-Install light-sdd skills, commands, and templates for Claude Code.
+Install light-sdd skills, commands, and templates.
+Supports multiple CLI tools (Claude Code, CodeBuddy, etc.).
 
 Options:
   --target DIR    Install to DIR (skills/ and commands/ created inside)
   --lang LANG     Template language: en (default) or zh-CN
-  --project       Install into the current project (.claude/) instead of user-level
+  --project       Install into the current project instead of user-level
+                  (auto-detects .codebuddy/ or .claude/)
   --check         Verify installation integrity without installing
   --update        Pull latest from GitHub and reinstall
   --uninstall     Remove SDD skills, commands, and templates
   -h, --help      Show this help
 
 Examples:
-  ./install.sh                            # Install to ~/.claude/ (English)
+  ./install.sh                            # Auto-detect CLI and install (English)
   ./install.sh --lang zh-CN              # Install with Chinese templates
-  ./install.sh --target .claude-internal --lang zh-CN
-  ./install.sh --project                  # Install to ./.claude/
+  ./install.sh --target ~/.codebuddy     # Explicit target directory
+  ./install.sh --project                  # Install to project-level config dir
   ./install.sh --check                    # Verify existing installation
   ./install.sh --update                   # Pull latest + reinstall
   ./install.sh --uninstall               # Remove SDD from default location
@@ -347,7 +365,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --project)
-      INSTALL_ROOT=".claude"
+      INSTALL_ROOT="$(detect_cli_config_dir ".")"
       shift
       ;;
     --check)

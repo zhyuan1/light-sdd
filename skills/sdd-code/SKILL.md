@@ -84,6 +84,8 @@ Some delegates have built-in auto-transitions that conflict with SDD workflow co
 
 The `transition_suppression.override_text` from `delegates.yaml → sdd-code` must be prepended in the args passed to the Skill tool call above.
 
+**SDD OVERRIDE**: Do NOT invoke `using-git-worktrees` before starting. Do NOT invoke `finishing-a-development-branch` after tasks complete. Your scope is limited to executing the tasks in the current batch and updating their status. Return control to SDD when the batch is done. SDD controls workspace management and branch finishing -- these are handled by `/sdd-ship`.
+
 If the delegate attempts either transition, intercept and stop. Inform the user:
 > Task execution paused. The delegate tried to auto-advance to branch finishing -- SDD intercepted this. Run `/sdd-review-code` or `/sdd-verify` to continue the SDD workflow.
 
