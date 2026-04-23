@@ -28,13 +28,7 @@ Usage:
 1. **Parse arguments**: extract `<profile>` from `$ARGUMENTS`.
    - If no argument supplied: jump to Core Execution — List Mode.
 
-2. **Locate `delegates.yaml`**: search using the path priority from delegation-protocol.md §1:
-   - `.claude/skills/sdd-templates/delegates.yaml` (project-level, higher priority)
-   - `~/.claude/skills/sdd-templates/delegates.yaml` (user-level)
-   - `~/.claude-internal/skills/sdd-templates/delegates.yaml` (user-level private install)
-   - Stop at the first file found. If none exists, report:
-     > `delegates.yaml` not found. Is light-sdd installed? Run `./install.sh` to install.
-   - And stop.
+2. **Locate `delegates.yaml`**: follow `delegation-protocol.md → Prerequisites: Locate delegates.yaml` (four search paths, project-level first, then user-level). Stop at the first file found. If none exists, report and stop as specified there.
 
 3. **Validate the requested profile**:
    - Accept `"default"` unconditionally (no lookup needed).

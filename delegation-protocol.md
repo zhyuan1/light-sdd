@@ -8,6 +8,29 @@ SDD skills delegate core work to external framework skills (Superpowers, OpenSpe
 
 ---
 
+## Prerequisites: Locate delegates.yaml
+
+**Every SDD skill must run this step first, before any other section of this protocol.**
+
+Search for `delegates.yaml` in the following locations, in order. Stop at the first file found.
+
+1. `.claude/skills/sdd-templates/delegates.yaml` — project-level install
+2. `.claude-internal/skills/sdd-templates/delegates.yaml` — project-level private install
+3. `~/.claude/skills/sdd-templates/delegates.yaml` — user-level install
+4. `~/.claude-internal/skills/sdd-templates/delegates.yaml` — user-level private install
+
+**If found**: load it and proceed to Section 0.
+
+**If not found at any location**: stop immediately and report:
+> `delegates.yaml` not found. Is light-sdd installed?
+> Checked: `.claude/skills/sdd-templates/`, `.claude-internal/skills/sdd-templates/`, `~/.claude/skills/sdd-templates/`, `~/.claude-internal/skills/sdd-templates/`
+> Run `./install.sh` (from the light-sdd repo) to install.
+
+**Do not enter inline/manual mode as a substitute for a missing `delegates.yaml`.**
+Inline mode is only valid when `delegates.yaml` is present but no matching delegate skill is found (see Section 2 step 3).
+
+---
+
 ## 0. Profile Resolution
 
 Before resolving any delegate skill, determine the active profile:
