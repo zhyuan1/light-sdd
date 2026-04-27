@@ -40,7 +40,8 @@ Each action skill follows a three-part structure:
 ./install.sh --project
 
 # Explicit target directory
-./install.sh --target ~/.codebuddy
+./install.sh --target ~/.claude        # Claude Code
+./install.sh --target ~/.codebuddy     # CodeBuddy
 
 # Combine options
 ./install.sh --target ~/.codebuddy --lang zh-CN
@@ -54,6 +55,65 @@ Each action skill follows a three-part structure:
 # Uninstall
 ./install.sh --uninstall
 ```
+
+### Installed file layout
+
+After running `./install.sh`, the following files are placed under your CLI's config directory (e.g. `~/.codebuddy/` or `~/.claude/`):
+
+```
+~/.{config_dir}/
+  skills/
+    sdd-templates/          # shared SDD config and templates
+      delegates.yaml        # action -> delegate registry (primary, fallback, profiles)
+      delegation-protocol.md  # skill resolution algorithm
+      schema.yaml           # content constraints for all 7 artifact types
+      brainstorm.md         # artifact template
+      proposal.md
+      spec.md
+      design.md
+      tasks.md
+      plan.md
+      review.md
+    sdd-brainstorm/
+      SKILL.md
+    sdd-propose/
+      SKILL.md
+    sdd-ff/
+      SKILL.md
+    sdd-plan/
+      SKILL.md
+    sdd-code/
+      SKILL.md
+    sdd-review-spec/
+      SKILL.md
+    sdd-review-code/
+      SKILL.md
+    sdd-verify/
+      SKILL.md
+    sdd-ship/
+      SKILL.md
+    sdd-status/
+      SKILL.md
+    sdd-use/
+      SKILL.md
+    sdd-kb/
+      SKILL.md
+  commands/
+    sdd-brainstorm.md
+    sdd-propose.md
+    sdd-ff.md
+    sdd-plan.md
+    sdd-code.md
+    sdd-review-spec.md
+    sdd-review-code.md
+    sdd-verify.md
+    sdd-ship.md
+    sdd-status.md
+    sdd-use.md
+    sdd-kb.md
+```
+
+Every SDD skill locates `delegates.yaml`, `delegation-protocol.md`, and artifact templates by searching for the `sdd-templates/` directory at startup. The search checks project-level paths first, then user-level paths, across all known CLI config directories (`codebuddy`, `claude`, `claude-internal`).
 
 ### Prerequisites
 
