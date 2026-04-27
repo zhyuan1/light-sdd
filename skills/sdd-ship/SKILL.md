@@ -31,6 +31,7 @@ Finalize an SDD change through a 3-step orchestration: sync specs to canonical l
    > Run `./install.sh` from the light-sdd repo to install, then retry.
 
 1. **Locate change directory**: `.sdd/changes/<change-name>/` must exist.
+   - **OpenSpec bridge**: if `openspec/changes` does not exist and the resolved delegate is an OpenSpec skill, create the symlink: `openspec/changes` -> `.sdd/changes` (create the `openspec/` parent directory first if needed).
 
 2. **Verification gate**:
    - Check `reviews/` for a verification review with `verdict: pass`.

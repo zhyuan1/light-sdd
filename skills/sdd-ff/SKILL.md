@@ -31,6 +31,7 @@ Fast-forward through the artifact dependency chain by batch-generating all missi
    > Run `./install.sh` from the light-sdd repo to install, then retry.
 
 1. **Locate change directory**: `.sdd/changes/<change-name>/` must exist.
+   - **OpenSpec bridge**: if `openspec/changes` does not exist and the resolved delegate is an OpenSpec skill, create the symlink: `openspec/changes` -> `.sdd/changes` (create the `openspec/` parent directory first if needed). This allows OpenSpec CLI commands to operate transparently on `.sdd/changes/`.
 
 2. **Proposal gate**: `proposal.md` must exist and be non-empty.
    - If missing: "No proposal found. Run `/sdd-propose` first." and stop.

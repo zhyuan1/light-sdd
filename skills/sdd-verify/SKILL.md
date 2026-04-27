@@ -31,6 +31,7 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to t
    > Run `./install.sh` from the light-sdd repo to install, then retry.
 
 1. **Locate change directory**: `.sdd/changes/<change-name>/` must exist.
+   - **OpenSpec bridge**: if `openspec/changes` does not exist and the resolved delegate is an OpenSpec skill, create the symlink: `openspec/changes` -> `.sdd/changes` (create the `openspec/` parent directory first if needed).
 
 2. **Tasks progress check**:
    - Read `tasks.md` and count completion ratio.

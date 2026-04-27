@@ -36,6 +36,7 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
 
 2. **Directory setup**:
    - If `.sdd/changes/<change-name>/` does not exist, create it.
+   - **OpenSpec bridge**: if `openspec/changes` does not exist and the resolved delegate is an OpenSpec skill, create the symlink: `openspec/changes` -> `.sdd/changes` (create the `openspec/` parent directory first if needed). This allows OpenSpec CLI commands to operate transparently on `.sdd/changes/`.
    - If `proposal.md` already exists in the directory, this is a "continue" case -- inform the user and proceed to update it.
 
 3. **Template seeding**:
@@ -69,10 +70,6 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
 ```
 Skill({ skill: "<resolved-skill-name>", args: "<context>" })
 ```
-
-**Selecting the delegate** (when OpenSpec is the resolved framework):
-- If this is a **new change** (`.sdd/changes/<change-name>/proposal.md` did not exist before Pre-check step 3): invoke `openspec-new-change`.
-- If this is a **continue case** (`proposal.md` already existed): invoke `openspec-continue-change`.
 
 Pass as args:
 - The change name.
