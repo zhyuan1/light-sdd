@@ -1634,6 +1634,108 @@ PYEOF
   if $ok; then pass "$label"; fi
 }
 
+
+# ---------------------------------------------------------------------------
+# T1.17 Prerequisites step -- inline search paths in all delegating skills
+# ---------------------------------------------------------------------------
+t1_17() {
+  local label="T1.17 Prerequisites inline search paths"
+  local ok=true
+
+  # All 9 skills that use delegates.yaml must have an inline sdd-templates search path
+  local delegating_skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                           sdd-review-code sdd-verify sdd-ship sdd-use)
+
+  for skill in "${delegating_skills[@]}"; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+
+    # Must have a Prerequisites block or an explicit Locate delegates.yaml step (sdd-use)
+    if ! grep -q "Prerequisites\|Locate \`delegates.yaml\`" "$skill_file"; then
+      fail "$label -- $skill missing 'Prerequisites' step in Pre-check"
+      ok=false
+      continue
+    fi
+
+    # Must list all 4 search paths (project-level and user-level variants)
+    local precheck
+    precheck=$(sed -n '/^## Pre-check/,/^## /p' "$skill_file")
+
+    if ! echo "$precheck" | grep -q "sdd-templates"; then
+      fail "$label -- $skill Prerequisites missing 'sdd-templates' directory reference"
+      ok=false
+    fi
+
+    # Must cover both project-level and user-level paths
+    if ! echo "$precheck" | grep -q "project-level"; then
+      fail "$label -- $skill Prerequisites missing 'project-level' path"
+      ok=false
+    fi
+    if ! echo "$precheck" | grep -q "user-level"; then
+      fail "$label -- $skill Prerequisites missing 'user-level' path"
+      ok=false
+    fi
+
+    # Must reference all known CLI config dir names
+    for cli in codebuddy claude; do
+      if ! echo "$precheck" | grep -q "$cli"; then
+        fail "$label -- $skill Prerequisites missing known CLI dir '$cli'"
+        ok=false
+      fi
+    done
+
+    # Must define <sdd-templates-dir> variable for downstream use
+    # (sdd-use only needs delegates.yaml, not templates -- exempt from this check)
+    if [ "$skill" != "sdd-use" ]; then
+      if ! echo "$precheck" | grep -q "sdd-templates-dir"; then
+        fail "$label -- $skill Prerequisites missing '<sdd-templates-dir>' variable definition"
+        ok=false
+      fi
+    fi
+  done
+
+  # Pure SDD skills must NOT have Prerequisites (they don't use delegates.yaml)
+  for skill in sdd-review-spec sdd-status sdd-kb; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+    if grep -q "sdd-templates-dir" "$skill_file"; then
+      fail "$label -- $skill has unexpected Prerequisites/sdd-templates-dir (no external delegation)"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
+# ---------------------------------------------------------------------------
+# T1.18 Prerequisites error message -- stop and show, no auto-install
+# ---------------------------------------------------------------------------
+t1_18() {
+  local label="T1.18 Prerequisites error message correctness"
+  local ok=true
+
+  local delegating_skills=(sdd-brainstorm sdd-propose sdd-ff sdd-plan sdd-code
+                           sdd-review-code sdd-verify sdd-ship sdd-use)
+
+  for skill in "${delegating_skills[@]}"; do
+    local skill_file="$REPO_ROOT/skills/$skill/SKILL.md"
+    local precheck
+    precheck=$(sed -n '/^## Pre-check/,/^## /p' "$skill_file")
+
+    # Must say "stop immediately"
+    if ! echo "$precheck" | grep -q "stop immediately"; then
+      fail "$label -- $skill Prerequisites missing 'stop immediately' in error handling"
+      ok=false
+    fi
+
+    # Must explicitly say do not attempt to install
+    if ! echo "$precheck" | grep -q "do not attempt"; then
+      fail "$label -- $skill Prerequisites missing 'do not attempt' (must not auto-install)"
+      ok=false
+    fi
+  done
+
+  if $ok; then pass "$label"; fi
+}
+
 run_structural() {
   echo "=== Structural Tests ==="
   t1_1
@@ -1652,6 +1754,8 @@ run_structural() {
   t1_14
   t1_15
   t1_16
+  t1_17
+  t1_18
   echo ""
   echo "=== Configuration Tests ==="
   t2_1
