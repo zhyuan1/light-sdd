@@ -31,7 +31,7 @@ detect_cli_config_dir() {
   echo "$base/.claude"
 }
 
-# Default install root: auto-detected from ~/.codebuddy or ~/.claude
+# Default install root: auto-detected from known CLI config dirs (~/.codebuddy, ~/.claude, etc.)
 # Skills -> <root>/skills/, Commands -> <root>/commands/
 INSTALL_ROOT="${SDD_INSTALL_ROOT:-$(detect_cli_config_dir "$HOME")}"
 LANG_CHOICE="en"
@@ -56,7 +56,8 @@ Options:
 Examples:
   ./install.sh                            # Auto-detect CLI and install (English)
   ./install.sh --lang zh-CN              # Install with Chinese templates
-  ./install.sh --target ~/.codebuddy     # Explicit target directory
+  ./install.sh --target ~/.claude        # Explicit target directory (Claude Code)
+  ./install.sh --target ~/.codebuddy    # Explicit target directory (CodeBuddy)
   ./install.sh --project                  # Install to project-level config dir
   ./install.sh --check                    # Verify existing installation
   ./install.sh --update                   # Pull latest + reinstall

@@ -16,6 +16,20 @@ Facilitate structured, divergent exploration before committing to an approach. D
 
 ## Pre-check
 
+0. **Prerequisites** — locate the `sdd-templates` directory:
+   Search the following paths in order, stopping at the first directory that contains `delegates.yaml`:
+   1. `.{config_dir}/skills/sdd-templates/` — project-level install
+   2. `.{config_dir}-internal/skills/sdd-templates/` — project-level private install
+   3. `~/.{config_dir}/skills/sdd-templates/` — user-level install
+   4. `~/.{config_dir}-internal/skills/sdd-templates/` — user-level private install
+
+   Known `{config_dir}` values: `codebuddy`, `claude`, `claude-internal`. Check all at each level.
+
+   Once found, this directory is `<sdd-templates-dir>`. It contains `delegates.yaml`, `delegation-protocol.md`, and all artifact templates (`brainstorm.md`, `proposal.md`, etc.).
+   If not found: stop immediately and show the user this message (do not attempt to install or continue):
+   > `delegates.yaml` not found. Is light-sdd installed?
+   > Run `./install.sh` from the light-sdd repo to install, then retry.
+
 1. **Resolve change name**:
    - If the user supplied `<change-name>`, use it.
    - Otherwise, ask the user for a short slug.

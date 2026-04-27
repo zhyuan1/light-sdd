@@ -27,13 +27,43 @@ Search for `delegates.yaml` in the following locations, in order. Stop at the fi
 
 **If found**: load it and proceed to Section 0.
 
-**If not found at any location**: stop immediately and report:
+**If not found at any location**: stop immediately and show the user this message (do not attempt to install or continue):
 > `delegates.yaml` not found. Is light-sdd installed?
 > Checked project-level and user-level config directories for all known CLIs.
-> Run `./install.sh` (from the light-sdd repo) to install.
+> Run `./install.sh` from the light-sdd repo to install, then retry.
 
 **Do not enter inline/manual mode as a substitute for a missing `delegates.yaml`.**
 Inline mode is only valid when `delegates.yaml` is present but no matching delegate skill is found (see Section 2 step 3).
+
+---
+
+## Prerequisites: Locate templates directory
+
+**Every SDD skill that references `templates/<artifact>.md` must resolve the templates directory using this step.**
+
+The templates directory is always the same directory that contains `delegates.yaml` (i.e., `sdd-templates/`). Once `delegates.yaml` has been located in the step above, the templates directory is that same directory.
+
+Concretely, if `delegates.yaml` was found at:
+
+```
+~/.{config_dir}/skills/sdd-templates/delegates.yaml
+```
+
+Then templates are located at:
+
+```
+~/.{config_dir}/skills/sdd-templates/<artifact>.md
+```
+
+When a SKILL.md says "copy `templates/brainstorm.md`" (or any other template), resolve it as:
+
+```
+<sdd-templates-dir>/<artifact>.md
+```
+
+**If the expected template file is not found in the resolved directory**: stop immediately and show the user this message (do not attempt to continue):
+> Template `<artifact>.md` not found in `<sdd-templates-dir>`.
+> Run `./install.sh` from the light-sdd repo to reinstall, then retry.
 
 ---
 

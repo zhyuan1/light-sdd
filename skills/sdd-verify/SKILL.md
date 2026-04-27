@@ -16,6 +16,20 @@ Verify the implementation satisfies all spec acceptance criteria. Delegates to t
 
 ## Pre-check
 
+0. **Prerequisites** — locate the `sdd-templates` directory:
+   Search the following paths in order, stopping at the first directory that contains `delegates.yaml`:
+   1. `.{config_dir}/skills/sdd-templates/` — project-level install
+   2. `.{config_dir}-internal/skills/sdd-templates/` — project-level private install
+   3. `~/.{config_dir}/skills/sdd-templates/` — user-level install
+   4. `~/.{config_dir}-internal/skills/sdd-templates/` — user-level private install
+
+   Known `{config_dir}` values: `codebuddy`, `claude`, `claude-internal`. Check all at each level.
+
+   Once found, this directory is `<sdd-templates-dir>`. It contains `delegates.yaml` and `delegation-protocol.md`.
+   If not found: stop immediately and show the user this message (do not attempt to install or continue):
+   > `delegates.yaml` not found. Is light-sdd installed?
+   > Run `./install.sh` from the light-sdd repo to install, then retry.
+
 1. **Locate change directory**: `.sdd/changes/<change-name>/` must exist.
 
 2. **Tasks progress check**:
