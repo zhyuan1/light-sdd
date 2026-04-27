@@ -37,36 +37,6 @@ Inline mode is only valid when `delegates.yaml` is present but no matching deleg
 
 ---
 
-## Prerequisites: Locate templates directory
-
-**Every SDD skill that references `templates/<artifact>.md` must resolve the templates directory using this step.**
-
-The templates directory is always the same directory that contains `delegates.yaml` (i.e., `sdd-templates/`). Once `delegates.yaml` has been located in the step above, the templates directory is that same directory.
-
-Concretely, if `delegates.yaml` was found at:
-
-```
-~/.{config_dir}/skills/sdd-templates/delegates.yaml
-```
-
-Then templates are located at:
-
-```
-~/.{config_dir}/skills/sdd-templates/<artifact>.md
-```
-
-When a SKILL.md says "copy `templates/brainstorm.md`" (or any other template), resolve it as:
-
-```
-<sdd-templates-dir>/<artifact>.md
-```
-
-**If the expected template file is not found in the resolved directory**: stop immediately and show the user this message (do not attempt to continue):
-> Template `<artifact>.md` not found in `<sdd-templates-dir>`.
-> Run `./install.sh` from the light-sdd repo to reinstall, then retry.
-
----
-
 ## 0. Profile Resolution
 
 Before resolving any delegate skill, determine the active profile:
