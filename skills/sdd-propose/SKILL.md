@@ -70,6 +70,10 @@ Create a new SDD change or continue an existing proposal. Delegates the core pro
 Skill({ skill: "<resolved-skill-name>", args: "<context>" })
 ```
 
+**Selecting the delegate** (when OpenSpec is the resolved framework):
+- If this is a **new change** (`.sdd/changes/<change-name>/proposal.md` did not exist before Pre-check step 3): invoke `openspec-new-change`.
+- If this is a **continue case** (`proposal.md` already existed): invoke `openspec-continue-change`.
+
 Pass as args:
 - The change name.
 - Contents of `brainstorm.md` (if it exists) as prior context.
