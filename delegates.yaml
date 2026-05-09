@@ -136,6 +136,10 @@ sdd-verify:
       primary:
         - framework: superpowers
           skill: verification-before-completion
+    step3:
+      primary:
+        - framework: ai_native_kit
+          skill: interface-test-case-executor
   fallback:
     - framework: ecc
       skill: verification-loop
