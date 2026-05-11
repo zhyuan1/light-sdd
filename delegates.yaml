@@ -34,6 +34,8 @@ sdd-brainstorm:
 sdd-propose:
   primary:
     - framework: openspec
+      skill: openspec-new-change
+    - framework: openspec
       skill: openspec-continue-change
   fallback:
     - framework: ecc
